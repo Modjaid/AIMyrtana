@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Messaging.Abstractions/1.0.0": {
+        "runtime": {
+          "Messaging.Abstractions.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Messaging.Abstractions/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

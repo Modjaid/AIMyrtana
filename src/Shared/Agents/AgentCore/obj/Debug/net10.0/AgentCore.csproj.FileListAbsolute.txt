@@ -1,0 +1,17 @@
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.deps.json
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.pdb
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.Abstractions.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.Integrations.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Agents\AgentCore\bin\Debug\net10.0\AgentCore.Integrations.pdb
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.csproj.AssemblyReference.cache
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.AssemblyInfoInputs.cache
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.AssemblyInfo.cs
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.csproj.Up2Date
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\refint\AgentCore.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\AgentCore.pdb
+C:\AIMyrtana\src\Shared\Agents\AgentCore\obj\Debug\net10.0\ref\AgentCore.dll

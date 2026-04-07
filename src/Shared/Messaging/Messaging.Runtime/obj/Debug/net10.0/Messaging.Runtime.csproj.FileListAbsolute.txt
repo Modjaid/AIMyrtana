@@ -1,0 +1,15 @@
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\bin\Debug\net10.0\Messaging.Runtime.deps.json
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\bin\Debug\net10.0\Messaging.Runtime.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\bin\Debug\net10.0\Messaging.Runtime.pdb
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\bin\Debug\net10.0\Messaging.Abstractions.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\bin\Debug\net10.0\Messaging.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.csproj.AssemblyReference.cache
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.AssemblyInfoInputs.cache
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.AssemblyInfo.cs
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messagin.F831F172.Up2Date
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\refint\Messaging.Runtime.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\Messaging.Runtime.pdb
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Runtime\obj\Debug\net10.0\ref\Messaging.Runtime.dll

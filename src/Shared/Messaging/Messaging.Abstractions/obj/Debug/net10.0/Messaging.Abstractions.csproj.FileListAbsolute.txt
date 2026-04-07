@@ -1,0 +1,11 @@
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\bin\Debug\net10.0\Messaging.Abstractions.deps.json
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\bin\Debug\net10.0\Messaging.Abstractions.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\bin\Debug\net10.0\Messaging.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.AssemblyInfoInputs.cache
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.AssemblyInfo.cs
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\refint\Messaging.Abstractions.dll
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\ref\Messaging.Abstractions.dll

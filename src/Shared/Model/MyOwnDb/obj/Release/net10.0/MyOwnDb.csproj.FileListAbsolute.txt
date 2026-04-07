@@ -1,0 +1,14 @@
+C:\AIMyrtana\Shared\Model\MyOwnDb\bin\Release\net10.0\MyOwnDb.deps.json
+C:\AIMyrtana\Shared\Model\MyOwnDb\bin\Release\net10.0\MyOwnDb.runtimeconfig.json
+C:\AIMyrtana\Shared\Model\MyOwnDb\bin\Release\net10.0\MyOwnDb.dll
+C:\AIMyrtana\Shared\Model\MyOwnDb\bin\Release\net10.0\MyOwnDb.pdb
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.csproj.AssemblyReference.cache
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.AssemblyInfoInputs.cache
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.AssemblyInfo.cs
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.dll
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\refint\MyOwnDb.dll
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.pdb
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\MyOwnDb.genruntimeconfig.cache
+C:\AIMyrtana\Shared\Model\MyOwnDb\obj\Release\net10.0\ref\MyOwnDb.dll

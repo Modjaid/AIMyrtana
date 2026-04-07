@@ -1,0 +1,14 @@
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\bin\Debug\net10.0\TcpTestClient.Console.exe
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\bin\Debug\net10.0\TcpTestClient.Console.deps.json
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\bin\Debug\net10.0\TcpTestClient.Console.runtimeconfig.json
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\bin\Debug\net10.0\TcpTestClient.Console.dll
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\bin\Debug\net10.0\TcpTestClient.Console.pdb
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.AssemblyInfoInputs.cache
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.AssemblyInfo.cs
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.dll
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\refint\TcpTestClient.Console.dll
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.pdb
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.genruntimeconfig.cache
+C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\ref\TcpTestClient.Console.dll

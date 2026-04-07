@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Adapters.WhatsApp/1.0.0": {
+        "dependencies": {
+          "Messaging.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "Adapters.WhatsApp.dll": {}
+        }
+      },
+      "Messaging.Abstractions/1.0.0": {
+        "runtime": {
+          "Messaging.Abstractions.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Adapters.WhatsApp/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Messaging.Abstractions/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

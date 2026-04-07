@@ -1,0 +1,11 @@
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\bin\Debug\net10.0\AgentCore.Abstractions.deps.json
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\bin\Debug\net10.0\AgentCore.Abstractions.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\bin\Debug\net10.0\AgentCore.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.AssemblyInfoInputs.cache
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.AssemblyInfo.cs
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\refint\AgentCore.Abstractions.dll
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\ref\AgentCore.Abstractions.dll

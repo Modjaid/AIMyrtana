@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "VrSSgyPHX2Y=",
+  "success": true,
+  "projectFilePath": "C:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Hodja\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.5\\microsoft.extensions.dependencyinjection.abstractions.10.0.5.nupkg.sha512",
+    "C:\\Users\\Hodja\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.5\\microsoft.extensions.logging.abstractions.10.0.5.nupkg.sha512"
+  ],
+  "logs": []
+}

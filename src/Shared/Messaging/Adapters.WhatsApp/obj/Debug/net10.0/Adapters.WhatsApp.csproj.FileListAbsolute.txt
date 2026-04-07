@@ -1,0 +1,15 @@
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\bin\Debug\net10.0\Adapters.WhatsApp.deps.json
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\bin\Debug\net10.0\Adapters.WhatsApp.dll
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\bin\Debug\net10.0\Adapters.WhatsApp.pdb
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\bin\Debug\net10.0\Messaging.Abstractions.dll
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\bin\Debug\net10.0\Messaging.Abstractions.pdb
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.csproj.AssemblyReference.cache
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.AssemblyInfoInputs.cache
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.AssemblyInfo.cs
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.csproj.CoreCompileInputs.cache
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.FD357BFC.Up2Date
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.dll
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\refint\Adapters.WhatsApp.dll
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.pdb
+C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\ref\Adapters.WhatsApp.dll
