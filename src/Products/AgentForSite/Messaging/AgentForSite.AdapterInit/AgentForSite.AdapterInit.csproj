@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\WebSites.Runtime\WebSites.Runtime.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\Agents\AgentCore\AgentCore.csproj" />
+    <ProjectReference Include="..\AgentForSite.WebAdapter\AgentForSite.WebAdapter.csproj" />
+    <ProjectReference Include="..\..\Agents\AgentForSite.AgentImplementations\AgentForSite.AgentImplementations.csproj" />
+    <ProjectReference Include="..\..\Agents\AgentForSite.AgentPolicies\AgentForSite.AgentPolicies.csproj" />
+    <ProjectReference Include="..\..\Agents\AgentForSite.ProjectFlows\AgentForSite.ProjectFlows.csproj" />
+  </ItemGroup>
+
+</Project>

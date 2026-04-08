@@ -1,14 +1,9 @@
 {
   "targets": [
     {
-      "name": "Example service A",
+      "name": "AgentForSite TcpTest",
       "host": "127.0.0.1",
-      "port": 5000
-    },
-    {
-      "name": "Example service B",
-      "host": "127.0.0.1",
-      "port": 5001
+      "port": 19407
     }
   ]
 }
