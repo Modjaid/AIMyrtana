@@ -3,6 +3,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+Console.InputEncoding = Encoding.UTF8;
+Console.OutputEncoding = Encoding.UTF8;
+
 if (args.Length >= 2)
     return await RunCliAsync(args).ConfigureAwait(false);
 
@@ -10,7 +13,7 @@ if (args.Length == 1)
 {
     Console.Error.WriteLine("Usage: TcpTestClient.Console <host> <port> [message]");
     Console.Error.WriteLine("Example: TcpTestClient.Console 127.0.0.1 5000 \"PING\"");
-    Console.Error.WriteLine("Запуск без аргументов — выбор сервиса из tcp-targets.json.");
+    Console.Error.WriteLine("Run without arguments to pick a service from tcp-targets.json.");
     return 1;
 }
 
@@ -34,8 +37,8 @@ static async Task<int> RunInteractiveAsync()
     var configPath = Path.Combine(AppContext.BaseDirectory, "tcp-targets.json");
     if (!File.Exists(configPath))
     {
-        Console.Error.WriteLine($"Файл не найден: {configPath}");
-        Console.Error.WriteLine("Создайте tcp-targets.json рядом с exe или скопируйте из проекта.");
+        Console.Error.WriteLine($"File not found: {configPath}");
+        Console.Error.WriteLine("Create tcp-targets.json next to the exe or copy it from the project.");
         return 1;
     }
 
@@ -47,18 +50,18 @@ static async Task<int> RunInteractiveAsync()
     }
     catch (JsonException ex)
     {
-        Console.Error.WriteLine($"Ошибка разбора JSON: {ex.Message}");
+        Console.Error.WriteLine($"Failed to parse JSON: {ex.Message}");
         return 1;
     }
 
     var targets = file?.Targets ?? [];
     if (targets.Count == 0)
     {
-        Console.Error.WriteLine("В tcp-targets.json нет ни одного сервиса (targets).");
+        Console.Error.WriteLine("No services found in tcp-targets.json (targets).");
         return 1;
     }
 
-    Console.WriteLine("Куда отправить тестовое сообщение?");
+    Console.WriteLine("Where do you want to send a test message?");
     for (var i = 0; i < targets.Count; i++)
     {
         var t = targets[i];
@@ -68,7 +71,7 @@ static async Task<int> RunInteractiveAsync()
     int index;
     while (true)
     {
-        Console.Write("Номер: ");
+        Console.Write("Number: ");
         var line = Console.ReadLine();
         if (line is null)
             return 1;
@@ -78,16 +81,32 @@ static async Task<int> RunInteractiveAsync()
             break;
         }
 
-        Console.WriteLine($"Введите число от 1 до {targets.Count}.");
+        Console.WriteLine($"Enter a number from 1 to {targets.Count}.");
     }
 
     var target = targets[index];
-    Console.Write("Сообщение [PING]: ");
-    var msgLine = Console.ReadLine();
-    var message = string.IsNullOrWhiteSpace(msgLine) ? "PING" : msgLine.Trim();
+    Console.WriteLine($"Target: {target.Name} ({target.Host}:{target.Port})");
+    Console.WriteLine("Type a message and press Enter. Empty line exits.");
+    while (true)
+    {
+        Console.Write("Message [PING]: ");
+        var msgLine = Console.ReadLine();
+        if (msgLine is null)
+            return 0;
+        if (string.IsNullOrWhiteSpace(msgLine))
+            break;
 
-    Console.WriteLine($"Подключение к {target.Host}:{target.Port}…");
-    return await SendAndReadResponseAsync(target.Host, target.Port, message).ConfigureAwait(false);
+        var message = msgLine.Trim();
+        Console.WriteLine($"Connecting to {target.Host}:{target.Port}…");
+        var code = await SendAndReadResponseAsync(target.Host, target.Port, message).ConfigureAwait(false);
+        if (code != 0)
+            Console.Error.WriteLine($"Send failed with exit code {code}.");
+        Console.WriteLine();
+    }
+
+    Console.WriteLine("Press Enter to exit.");
+    Console.ReadLine();
+    return 0;
 }
 
 static async Task<int> SendAndReadResponseAsync(string host, int port, string message)
@@ -104,13 +123,22 @@ static async Task<int> SendAndReadResponseAsync(string host, int port, string me
         await stream.WriteAsync(bytes).ConfigureAwait(false);
         await stream.FlushAsync().ConfigureAwait(false);
 
+        Console.WriteLine("Waiting for reply…");
         var buffer = new byte[4096];
-        stream.ReadTimeout = 5000;
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
         try
         {
-            var read = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length)).ConfigureAwait(false);
+            var read = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length), cts.Token).ConfigureAwait(false);
             if (read > 0)
                 Console.Write(Encoding.UTF8.GetString(buffer, 0, read));
+            else
+                Console.WriteLine("(no data)");
+        }
+        catch (OperationCanceledException)
+        {
+            Console.Error.WriteLine("Timed out waiting for reply (120s).");
+            return 3;
         }
         catch (IOException)
         {
@@ -121,7 +149,7 @@ static async Task<int> SendAndReadResponseAsync(string host, int port, string me
     }
     catch (Exception ex)
     {
-        Console.Error.WriteLine(ex.Message);
+        Console.Error.WriteLine($"Error: {ex.GetType().Name}: {ex.Message}");
         return 2;
     }
 }
