@@ -20,4 +20,4 @@ jobs:
           remote_path: /var/www/aimyrtana/ # Укажите ПУТЬ к вашей папке на VPS
           remote_host: ${{ secrets.REMOTE_HOST }}
           remote_user: ${{ secrets.REMOTE_USER }}
-          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote_key: ${{ secrets.UBUNTU_AI_MYRTANA }}
