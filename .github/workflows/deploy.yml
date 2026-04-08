@@ -1,23 +1,42 @@
-name: Deploy to VPS
+name: Build and Deploy
 
 on:
   push:
-    branches:
-      - main  # Скрипт сработает только при пуше в ветку main
+    branches: [ main ]
+    paths:
+      - 'src/**'
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Нужно для определения измененных файлов
 
-      - name: Deploy with rsync
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 1. Собираем всё, если изменился Shared
+      # 2. Или собираем только конкретный проект
+      - name: Build Projects
+        run: |
+          # Создаем папку для готовых файлов
+          mkdir -p ./dist
+          
+          # Проверяем изменения (упрощенная логика: собираем всё в dist)
+          # В будущем здесь можно добавить фильтрацию по папкам
+          dotnet publish src/Products/Products.csproj -c Release -o ./dist/products
+          # dotnet publish src/Agents/Agents.csproj -c Release -o ./dist/agents
+
+      - name: Deploy to VPS
         uses: Burnett01/rsync-deployments@7.0.0
         with:
           switches: -avz --delete
-          path: ./ 
-          remote_path: /var/www/aimyrtana/ # Укажите ПУТЬ к вашей папке на VPS
+          path: ./dist/ # Отправляем только содержимое папки dist
+          remote_path: /var/www/aimyrtana/
           remote_host: ${{ secrets.REMOTE_HOST }}
           remote_user: ${{ secrets.REMOTE_USER }}
           remote_key: ${{ secrets.UBUNTU_AI_MYRTANA }}
