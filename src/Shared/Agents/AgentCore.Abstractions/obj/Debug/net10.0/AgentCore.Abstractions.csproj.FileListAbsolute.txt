@@ -9,3 +9,4 @@ C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCor
 C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\refint\AgentCore.Abstractions.dll
 C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.pdb
 C:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\ref\AgentCore.Abstractions.dll
+c:\AIMyrtana\src\Shared\Agents\AgentCore.Abstractions\obj\Debug\net10.0\AgentCore.Abstractions.sourcelink.json

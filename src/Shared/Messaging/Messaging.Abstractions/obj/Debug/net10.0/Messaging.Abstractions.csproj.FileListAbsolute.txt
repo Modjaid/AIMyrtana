@@ -9,3 +9,4 @@ C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messa
 C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\refint\Messaging.Abstractions.dll
 C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.pdb
 C:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\ref\Messaging.Abstractions.dll
+c:\AIMyrtana\src\Shared\Messaging\Messaging.Abstractions\obj\Debug\net10.0\Messaging.Abstractions.sourcelink.json

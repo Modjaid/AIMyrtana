@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adapters.WhatsApp", "src\Sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adapters.Sms", "src\Shared\Messaging\Adapters.Sms\Adapters.Sms.csproj", "{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adapters.TcpTest", "src\Shared\Messaging\Adapters.TcpTest\Adapters.TcpTest.csproj", "{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C0D}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSites.Abstractions", "src\Shared\Messaging\WebSites.Abstractions\WebSites.Abstractions.csproj", "{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C07}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSites.Runtime", "src\Shared\Messaging\WebSites.Runtime\WebSites.Runtime.csproj", "{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C08}"
@@ -54,6 +56,10 @@ Global
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C0D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C07}.Release|Any CPU.ActiveCfg = Release|Any CPU

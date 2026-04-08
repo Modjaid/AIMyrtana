@@ -13,3 +13,4 @@ C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.W
 C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\refint\Adapters.WhatsApp.dll
 C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.pdb
 C:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\ref\Adapters.WhatsApp.dll
+c:\AIMyrtana\src\Shared\Messaging\Adapters.WhatsApp\obj\Debug\net10.0\Adapters.WhatsApp.sourcelink.json

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fNADHAMVby8=",
+  "dgSpecHash": "XAoWD0qqRt8=",
   "success": true,
-  "projectFilePath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Telegram\\Adapters.Telegram.csproj",
+  "projectFilePath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Telegram\\Adapters.Telegram.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hodja\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\Hodja\\.nuget\\packages\\microsoft.extensions.configuration.binder\\8.0.0\\microsoft.extensions.configuration.binder.8.0.0.nupkg.sha512",

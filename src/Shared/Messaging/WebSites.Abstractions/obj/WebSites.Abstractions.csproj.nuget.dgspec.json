@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj": {}
+    "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj": {}
   },
   "projects": {
-    "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj": {
+    "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj",
+        "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj",
         "projectName": "WebSites.Abstractions",
-        "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj",
+        "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj",
         "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-        "outputPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\obj\\",
+        "outputPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",

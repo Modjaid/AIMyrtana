@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "C:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj": {}
+    "c:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj": {}
   },
   "projects": {
     "c:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Abstractions\\AgentCore.Abstractions.csproj": {
@@ -339,14 +339,14 @@
         }
       }
     },
-    "C:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj": {
+    "c:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj",
+        "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj",
         "projectName": "AgentCore.Integrations",
-        "projectPath": "C:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj",
+        "projectPath": "c:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\AgentCore.Integrations.csproj",
         "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-        "outputPath": "C:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\obj\\",
+        "outputPath": "c:\\AIMyrtana\\src\\Shared\\Agents\\AgentCore.Integrations\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",

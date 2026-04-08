@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj": {}
+    "c:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj": {}
   },
   "projects": {
-    "C:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj": {
+    "c:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj",
+        "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj",
         "projectName": "MyOwnDb",
-        "projectPath": "C:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj",
+        "projectPath": "c:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\MyOwnDb.csproj",
         "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-        "outputPath": "C:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\obj\\",
+        "outputPath": "c:\\AIMyrtana\\src\\Shared\\Model\\MyOwnDb\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",

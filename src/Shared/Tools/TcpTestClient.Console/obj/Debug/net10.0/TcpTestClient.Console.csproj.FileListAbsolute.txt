@@ -12,3 +12,5 @@ C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\refint\Tcp
 C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.pdb
 C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.genruntimeconfig.cache
 C:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\ref\TcpTestClient.Console.dll
+c:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\bin\Debug\net10.0\tcp-targets.json
+c:\AIMyrtana\src\Shared\Tools\TcpTestClient.Console\obj\Debug\net10.0\TcpTestClient.Console.sourcelink.json

@@ -12,3 +12,4 @@ C:\AIMyrtana\src\Shared\Model\MyOwnDb\obj\Debug\net10.0\refint\MyOwnDb.dll
 C:\AIMyrtana\src\Shared\Model\MyOwnDb\obj\Debug\net10.0\MyOwnDb.pdb
 C:\AIMyrtana\src\Shared\Model\MyOwnDb\obj\Debug\net10.0\MyOwnDb.genruntimeconfig.cache
 C:\AIMyrtana\src\Shared\Model\MyOwnDb\obj\Debug\net10.0\ref\MyOwnDb.dll
+c:\AIMyrtana\src\Shared\Model\MyOwnDb\obj\Debug\net10.0\MyOwnDb.sourcelink.json

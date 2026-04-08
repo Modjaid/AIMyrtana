@@ -13,3 +13,4 @@ C:\AIMyrtana\src\Shared\Agents\AgentCore.Integrations\obj\Debug\net10.0\AgentCor
 C:\AIMyrtana\src\Shared\Agents\AgentCore.Integrations\obj\Debug\net10.0\refint\AgentCore.Integrations.dll
 C:\AIMyrtana\src\Shared\Agents\AgentCore.Integrations\obj\Debug\net10.0\AgentCore.Integrations.pdb
 C:\AIMyrtana\src\Shared\Agents\AgentCore.Integrations\obj\Debug\net10.0\ref\AgentCore.Integrations.dll
+c:\AIMyrtana\src\Shared\Agents\AgentCore.Integrations\obj\Debug\net10.0\AgentCore.Integrations.sourcelink.json

@@ -172,11 +172,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Runtime\\WebSites.Runtime.csproj",
+      "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Runtime\\WebSites.Runtime.csproj",
       "projectName": "WebSites.Runtime",
-      "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Runtime\\WebSites.Runtime.csproj",
+      "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Runtime\\WebSites.Runtime.csproj",
       "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-      "outputPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Runtime\\obj\\",
+      "outputPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Runtime\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -193,8 +193,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj": {
-              "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj"
+            "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj": {
+              "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\WebSites.Abstractions\\WebSites.Abstractions.csproj"
             }
           }
         }

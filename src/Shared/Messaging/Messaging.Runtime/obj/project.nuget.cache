@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FA4IsON7syA=",
+  "dgSpecHash": "tCnVVLoF0Ck=",
   "success": true,
-  "projectFilePath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Runtime\\Messaging.Runtime.csproj",
+  "projectFilePath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Runtime\\Messaging.Runtime.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hodja\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.5\\microsoft.extensions.dependencyinjection.abstractions.10.0.5.nupkg.sha512",
     "C:\\Users\\Hodja\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.5\\microsoft.extensions.logging.abstractions.10.0.5.nupkg.sha512"

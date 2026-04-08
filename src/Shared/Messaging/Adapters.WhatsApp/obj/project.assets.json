@@ -32,11 +32,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.WhatsApp\\Adapters.WhatsApp.csproj",
+      "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.WhatsApp\\Adapters.WhatsApp.csproj",
       "projectName": "Adapters.WhatsApp",
-      "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.WhatsApp\\Adapters.WhatsApp.csproj",
+      "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.WhatsApp\\Adapters.WhatsApp.csproj",
       "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-      "outputPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.WhatsApp\\obj\\",
+      "outputPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.WhatsApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -53,8 +53,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj": {
-              "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj"
+            "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj": {
+              "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj"
             }
           }
         }

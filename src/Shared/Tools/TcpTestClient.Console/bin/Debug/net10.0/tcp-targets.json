@@ -1,0 +1,14 @@
+{
+  "targets": [
+    {
+      "name": "Example service A",
+      "host": "127.0.0.1",
+      "port": 5000
+    },
+    {
+      "name": "Example service B",
+      "host": "127.0.0.1",
+      "port": 5001
+    }
+  ]
+}

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj": {}
+    "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj": {}
   },
   "projects": {
-    "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj": {
+    "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj",
+        "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj",
         "projectName": "Adapters.Sms",
-        "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj",
+        "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\Adapters.Sms.csproj",
         "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-        "outputPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\obj\\",
+        "outputPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Adapters.Sms\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -28,8 +28,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj": {
-                "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj"
+              "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj": {
+                "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj"
               }
             }
           }
@@ -343,14 +343,14 @@
         }
       }
     },
-    "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj": {
+    "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj",
+        "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj",
         "projectName": "Messaging.Abstractions",
-        "projectPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj",
+        "projectPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\Messaging.Abstractions.csproj",
         "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-        "outputPath": "C:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\obj\\",
+        "outputPath": "c:\\AIMyrtana\\src\\Shared\\Messaging\\Messaging.Abstractions\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",

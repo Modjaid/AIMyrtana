@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj": {}
+    "c:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj": {}
   },
   "projects": {
-    "C:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj": {
+    "c:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj",
+        "projectUniqueName": "c:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj",
         "projectName": "TcpTestClient.Console",
-        "projectPath": "C:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj",
+        "projectPath": "c:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\TcpTestClient.Console.csproj",
         "packagesPath": "C:\\Users\\Hodja\\.nuget\\packages\\",
-        "outputPath": "C:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\obj\\",
+        "outputPath": "c:\\AIMyrtana\\src\\Shared\\Tools\\TcpTestClient.Console\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hodja\\AppData\\Roaming\\NuGet\\NuGet.Config",
