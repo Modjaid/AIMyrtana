@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Messaging\ProductA.AdapterInit\ProductA.AdapterInit.csproj" />
+    <ProjectReference Include="..\Messaging\ProductA.MessageFlows\ProductA.MessageFlows.csproj" />
+    <ProjectReference Include="..\Messaging\ProductA.MessageHandlers\ProductA.MessageHandlers.csproj" />
+    <ProjectReference Include="..\Agents\ProductA.AgentImplementations\ProductA.AgentImplementations.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

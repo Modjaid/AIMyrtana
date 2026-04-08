@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\Messaging.Abstractions\Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\Messaging.Runtime\Messaging.Runtime.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

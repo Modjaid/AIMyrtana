@@ -12,31 +12,125 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Нужно для определения измененных файлов
+          fetch-depth: 0
+
+      - name: Decide products to build
+        id: plan
+        run: |
+          set -euo pipefail
+
+          collect_all_products() {
+            for dir in src/Products/*/; do
+              [ -d "$dir" ] || continue
+              basename "$dir"
+            done
+          }
+
+          emit_products() {
+            local list="$1"
+            if [ -z "$(echo "$list" | tr -d '[:space:]')" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              return 1
+            fi
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            {
+              echo 'products<<PLAN_EOF'
+              echo "$list"
+              echo 'PLAN_EOF'
+            } >> "$GITHUB_OUTPUT"
+            return 0
+          }
+
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE" ]; then
+            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              BEFORE=$(git rev-parse HEAD~1)
+            else
+              list=$(collect_all_products)
+              emit_products "$list" || true
+              echo "reason=first_commit" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          CHANGED=$(git diff --name-only "$BEFORE" "$AFTER" 2>/dev/null || true)
+
+          if echo "$CHANGED" | grep -q '^src/Shared/'; then
+            list=$(collect_all_products)
+            emit_products "$list" || true
+            echo "reason=shared_changed" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          SELECTED=""
+          for dir in src/Products/*/; do
+            [ -d "$dir" ] || continue
+            name="$(basename "$dir")"
+            prefix="src/Products/${name}/"
+            if echo "$CHANGED" | grep -qF "$prefix"; then
+              SELECTED="${SELECTED}${name}"$'\n'
+            fi
+          done
+
+          if [ -z "$(echo "$SELECTED" | tr -d '[:space:]')" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "reason=no_product_paths_changed" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          emit_products "$SELECTED"
+          echo "reason=product_paths_changed" >> "$GITHUB_OUTPUT"
 
       - name: Setup .NET
+        if: steps.plan.outputs.skip != 'true'
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
-      # 1. Собираем всё, если изменился Shared
-      # 2. Или собираем только конкретный проект
-      - name: Build Projects
+      - name: Build products
+        if: steps.plan.outputs.skip != 'true'
+        env:
+          PRODUCTS: ${{ steps.plan.outputs.products }}
         run: |
-          # Создаем папку для готовых файлов
-          mkdir -p ./dist
-          
-          # Проверяем изменения (упрощенная логика: собираем всё в dist)
-          # В будущем здесь можно добавить фильтрацию по папкам
-          dotnet publish src/Products/Products.csproj -c Release -o ./dist/products
-          # dotnet publish src/Agents/Agents.csproj -c Release -o ./dist/agents
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist
 
-      - name: Deploy to VPS
-        uses: Burnett01/rsync-deployments@7.0.0
-        with:
-          switches: -avz --delete
-          path: ./dist/ # Отправляем только содержимое папки dist
-          remote_path: /var/www/aimyrtana/
-          remote_host: ${{ secrets.REMOTE_HOST }}
-          remote_user: ${{ secrets.REMOTE_USER }}
-          remote_key: ${{ secrets.UBUNTU_AI_MYRTANA }}
+          while IFS= read -r prod || [ -n "$prod" ]; do
+            [ -z "$prod" ] && continue
+            slug=$(echo "$prod" | tr '[:upper:]' '[:lower:]')
+            base="src/Products/$prod"
+            api=$(find "$base" -maxdepth 3 -name '*.Api.csproj' -print | head -n1)
+            worker=$(find "$base" -maxdepth 3 -name '*.Worker.csproj' -print | head -n1)
+            if [ -n "$api" ]; then
+              mkdir -p "dist/$slug/api"
+              dotnet publish "$api" -c Release -o "dist/$slug/api"
+            fi
+            if [ -n "$worker" ]; then
+              mkdir -p "dist/$slug/worker"
+              dotnet publish "$worker" -c Release -o "dist/$slug/worker"
+            fi
+          done <<< "$PRODUCTS"
+
+      - name: Deploy built products to VPS
+        if: steps.plan.outputs.skip != 'true'
+        env:
+          SSH_KEY: ${{ secrets.UBUNTU_AI_MYRTANA }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$REMOTE_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          for slug_dir in dist/*/; do
+            [ -d "$slug_dir" ] || continue
+            slug=$(basename "$slug_dir")
+            rsync -avz --delete \
+              -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+              "$slug_dir" "${REMOTE_USER}@${REMOTE_HOST}:/var/www/aimyrtana/${slug}/"
+          done

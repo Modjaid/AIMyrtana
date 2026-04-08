@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\Messaging.Runtime\Messaging.Runtime.csproj" />
+    <ProjectReference Include="..\ProductA.MessageHandlers\ProductA.MessageHandlers.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\Agents\AgentCore\AgentCore.csproj" />
+    <ProjectReference Include="..\..\Agents\ProductA.AgentPolicies\ProductA.AgentPolicies.csproj" />
+    <ProjectReference Include="..\..\Agents\ProductA.ProjectFlows\ProductA.ProjectFlows.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
