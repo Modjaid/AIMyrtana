@@ -12,4 +12,10 @@
     <ProjectReference Include="..\Agents\AgentForSite.AgentImplementations\AgentForSite.AgentImplementations.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
