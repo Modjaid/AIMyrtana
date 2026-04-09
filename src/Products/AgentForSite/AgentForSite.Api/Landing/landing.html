@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="__HTML_LANG__">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n-title>ИИ-агент для любой CRM — подключение под ключ</title>
+  <meta name="description" content="" data-i18n-desc>
+  <style>
+    :root {
+      --bg-deep: #0c0f14;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8eaef;
+      --text-muted: #8b93a7;
+      --accent: #6ee7b7;
+      --accent-dim: rgba(110, 231, 183, 0.15);
+      --glow: rgba(110, 231, 183, 0.35);
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+      /* Лимит высоты демо-панелей: не растут бесконечно при новых сообщениях/задачах */
+      --demo-panel-max-height: min(72vh, 560px);
+      --demo-panel-min-height: 380px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-deep);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Фон: сетка + мягкое свечение */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(110, 231, 183, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(99, 102, 241, 0.08), transparent),
+        radial-gradient(ellipse 50% 30% at 0% 80%, rgba(236, 72, 153, 0.06), transparent),
+        var(--bg-deep);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
+    }
+
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Шапка */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      background: rgba(12, 15, 20, 0.75);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 20px;
+    }
+
+    .lang-switch {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .lang-switch a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .lang-switch a:hover {
+      color: var(--text);
+    }
+
+    .lang-switch a.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .lang-switch .sep {
+      color: var(--border);
+      user-select: none;
+      padding: 0 2px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    nav {
+      display: flex;
+      gap: 28px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--text);
+    }
+
+    /* Герой */
+    .hero {
+      padding: 88px 0 100px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(110, 231, 183, 0.25);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      max-width: 720px;
+      margin: 0 auto 20px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, #6ee7b7, #a5b4fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p.lead {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 36px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(145deg, #5fd4a8, #34d399);
+      color: #052e22;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 8px 32px var(--glow);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15) inset, 0 12px 40px var(--glow);
+    }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Карточки */
+    section {
+      padding: 64px 0;
+    }
+
+    section h2 {
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      text-align: center;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+      text-align: center;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 48px;
+      font-size: 1rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      padding: 28px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(110, 231, 183, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* CTA блок */
+    .cta-block {
+      margin: 40px 0 80px;
+      padding: 48px 32px;
+      border-radius: 20px;
+      text-align: center;
+      background: linear-gradient(145deg, rgba(110, 231, 183, 0.08), rgba(99, 102, 241, 0.06));
+      border: 1px solid var(--border);
+    }
+
+    .cta-block h2 {
+      margin-bottom: 12px;
+    }
+
+    .cta-block p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Полоска CRM */
+    .crm-strip-label {
+      text-align: center;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .crm-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 720px;
+      margin: 0 auto 8px;
+    }
+
+    .crm-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+
+    .crm-note {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .crm-note strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Шаги */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .step {
+      padding: 24px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .step-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    .step h3 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    /* Демо: опросник + стек задач */
+    .demo-section {
+      padding: 48px 0 72px;
+    }
+
+    .demo-section .section-desc {
+      max-width: 560px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+
+    .demo-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: var(--demo-panel-min-height);
+      max-height: var(--demo-panel-max-height);
+      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .demo-panel-head {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .demo-panel-head span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .demo-messages {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-bubble {
+      max-width: 92%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .chat-bubble.client {
+      align-self: flex-end;
+      background: var(--accent-dim);
+      border: 1px solid rgba(110, 231, 183, 0.25);
+      color: var(--text);
+    }
+
+    .chat-bubble.business {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .bubble-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      opacity: 0.85;
+    }
+
+    .demo-compose {
+      flex-shrink: 0;
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .demo-compose textarea {
+      flex: 1;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+    }
+
+    .demo-compose textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+
+    .demo-compose textarea:focus {
+      outline: none;
+      border-color: rgba(110, 231, 183, 0.35);
+    }
+
+    .demo-compose .btn-send {
+      flex-shrink: 0;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: linear-gradient(145deg, #5fd4a8, #34d399);
+      color: #052e22;
+      align-self: flex-end;
+    }
+
+    .demo-compose .btn-send:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .demo-task-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 14px 16px 16px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .demo-task-empty {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      opacity: 0.85;
+      padding: 8px 4px;
+    }
+
+    .task-stack-item {
+      position: relative;
+      padding: 12px 12px 12px 14px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      animation: taskIn 0.35s ease;
+    }
+
+    .task-stack-item.updated {
+      border-color: rgba(110, 231, 183, 0.35);
+      animation: taskPulse 0.6s ease;
+    }
+
+    .task-stack-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .task-stack-id {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .task-stack-badge {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(110, 231, 183, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(110, 231, 183, 0.2);
+    }
+
+    .task-stack-badge.muted {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border-color: var(--border);
+    }
+
+    .task-stack-text {
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    @keyframes taskIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes taskPulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+      40% {
+        box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.2);
+      }
+    }
+
+    .demo-note {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-panel {
+        --demo-panel-min-height: 360px;
+        --demo-panel-max-height: min(68vh, 520px);
+      }
+    }
+
+    footer {
+      padding: 32px 0 48px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        display: none;
+      }
+
+      .header-inner {
+        flex-wrap: wrap;
+      }
+
+      .lang-switch {
+        margin-left: auto;
+      }
+
+      .hero {
+        padding: 56px 0 72px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.AFS_LOCALE = "__AFS_LOCALE__";
+  </script>
+  <div class="bg-layer" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header>
+    <div class="wrap header-inner">
+      <div class="logo">AI<span>×</span>CRM</div>
+      <nav>
+        <a href="#features" data-i18n="nav.features">Преимущества</a>
+        <a href="#crm" data-i18n="nav.crm">Любая CRM</a>
+        <a href="#how" data-i18n="nav.how">Как работает</a>
+        <a href="#demo" data-i18n="nav.demo">Демо</a>
+        <a href="#contact" data-i18n="nav.contact">Заявка</a>
+      </nav>
+      <div class="lang-switch" role="navigation" aria-label="Language">
+        <a href="/ru/" data-lang-link="ru">RU</a>
+        <span class="sep" aria-hidden="true">|</span>
+        <a href="/en/" data-lang-link="en">EN</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="badge" data-i18n="hero.badge">Интеграция ИИ под ключ</div>
+        <h1><span data-i18n="hero.h1_before">ИИ-агент </span><em data-i18n="hero.h1_em">любой сложности</em><span data-i18n="hero.h1_after"> — к вашей CRM без ограничений</span></h1>
+        <p class="lead" data-i18n="hero.lead">Подключаем умных ассистентов к amoCRM, Битрикс24, Salesforce, HubSpot и к любой другой системе — даже к самописной. Один контур: лиды, сделки, задачи и переписки.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#contact" data-i18n="hero.cta1">Обсудить внедрение</a>
+          <a class="btn btn-ghost" href="#how" data-i18n="hero.cta2">Как мы подключаем</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+      <div class="wrap">
+        <h2 data-i18n="demo.h2">Как это выглядит вживую</h2>
+        <p class="section-desc" data-i18n="demo.desc">Слева — опросник: вы описываете, какого агента хотите, консультант задаёт уточняющие вопросы в том же чате. Справа — живой стек задач на реализацию: пункты появляются и уточняются по мере диалога. Без прокси ответы и задачи имитируются на странице.</p>
+        <div class="demo-grid">
+          <div class="demo-panel" data-i18n-aria-label="demo.panel1_aria">
+            <div class="demo-panel-head">
+              <span data-i18n="demo.panel1_title">Опросник: что нужно от агента</span>
+              <span data-i18n="demo.panel1_sub">Вы — заказчик; в том же чате агент уточняет требования вопросами</span>
+            </div>
+            <div class="demo-messages" id="chatMessages">
+              <div class="chat-bubble business">
+                <div class="bubble-label" data-i18n="chat.label_consultant">Консультант</div>
+                <span data-i18n="demo.welcome">Здравствуйте! Кратко опишите, какого ИИ-агента вы хотите под свою CRM или процесс: для чего он нужен, в каком канале будет работать и что должен уметь делать без человека.</span>
+              </div>
+            </div>
+            <div class="demo-compose">
+              <textarea id="chatInput" rows="2" data-i18n-placeholder="demo.chat_placeholder" placeholder=""></textarea>
+              <button type="button" class="btn-send" id="chatSend" data-i18n="demo.send">Отправить</button>
+            </div>
+          </div>
+          <div class="demo-panel" data-i18n-aria-label="demo.panel2_aria">
+            <div class="demo-panel-head">
+              <span data-i18n="demo.panel2_title">Стек задач на реализацию</span>
+              <span data-i18n="demo.panel2_sub">Параллельно диалогу фиксируем работы, которые предстоит сделать — добавляем и уточняем</span>
+            </div>
+            <div class="demo-task-body" id="taskStack">
+              <p class="demo-task-empty" id="taskStackEmpty" data-i18n="demo.tasks_empty">Задачи появятся после вашего первого сообщения</p>
+            </div>
+          </div>
+        </div>
+        <p class="demo-note" id="demoNote"></p>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <h2 data-i18n="features.h2">Почему это выгодно бизнесу</h2>
+        <p class="section-desc" data-i18n="features.desc">Не заменяем вашу CRM — усиливаем её: автоматизация рутины, скорость ответа клиентам и прозрачность воронки.</p>
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">∞</div>
+            <h3 data-i18n="features.f1_h">Любая сложность агента</h3>
+            <p data-i18n="features.f1_p">От простого автоответа и квалификации лида до многошаговых сценариев, RAG по вашим документам и действий «как у менеджера».</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">◇</div>
+            <h3 data-i18n="features.f2_h">Любая CRM</h3>
+            <p data-i18n="features.f2_p">Облачные и коробочные системы, API и вебхуки, кастомные поля и статусы — строим связку под ваш процесс продаж.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">⚡</div>
+            <h3 data-i18n="features.f3_h">Меньше ручной работы</h3>
+            <p data-i18n="features.f3_p">ИИ создаёт и обновляет карточки, переносит этапы, ставит задачи коллегам и подтягивает контекст из переписки.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">✦</div>
+            <h3 data-i18n="features.f4_h">Без хаоса в данных</h3>
+            <p data-i18n="features.f4_p">Правила доступа, логирование и согласование сценариев — чтобы агент работал предсказуемо и безопасно для вашей базы.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="crm">
+      <div class="wrap">
+        <h2 data-i18n="crm.h2">Не важно, какая у вас CRM</h2>
+        <p class="section-desc" data-i18n="crm.desc">Если у системы есть API, интеграции или экспорт — мы найдём способ стабильно стыковать агента с вашими процессами.</p>
+        <p class="crm-strip-label" data-i18n="crm.strip">Примеры систем</p>
+        <div class="crm-pills" data-i18n-aria-label="crm.pills_aria">
+          <span class="crm-pill">amoCRM</span>
+          <span class="crm-pill">Битрикс24</span>
+          <span class="crm-pill">Salesforce</span>
+          <span class="crm-pill">HubSpot</span>
+          <span class="crm-pill">Pipedrive</span>
+          <span class="crm-pill">Zoho</span>
+          <span class="crm-pill">Мегаплан</span>
+          <span class="crm-pill">Retail CRM</span>
+          <span class="crm-pill">Самописная CRM</span>
+        </div>
+        <p class="crm-note" data-i18n-html="crm.note_html"></p>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap">
+        <h2 data-i18n="how.h2">Как мы подключаем</h2>
+        <p class="section-desc" data-i18n="how.desc">Короткий цикл от идеи до работающего агента в вашей CRM — без лишней бюрократии.</p>
+        <div class="steps">
+          <article class="step">
+            <div class="step-num" data-i18n="how.s1_num">Шаг 1</div>
+            <h3 data-i18n="how.s1_h">Аудит и сценарий</h3>
+            <p data-i18n="how.s1_p">Смотрим вашу CRM, воронку и точки касания. Формируем задачи агента: что он может менять, кому писать и чего не делает.</p>
+          </article>
+          <article class="step">
+            <div class="step-num" data-i18n="how.s2_num">Шаг 2</div>
+            <h3 data-i18n="how.s2_h">Интеграция и тесты</h3>
+            <p data-i18n="how.s2_p">Подключаемся к API, настраиваем вебхуки и права. Прогоняем тестовые сделки и переписки, правим промпты и правила.</p>
+          </article>
+          <article class="step">
+            <div class="step-num" data-i18n="how.s3_num">Шаг 3</div>
+            <h3 data-i18n="how.s3_h">Запуск и сопровождение</h3>
+            <p data-i18n="how.s3_p">Включаем на боевых объёмах, следим за метриками и дорабатываем сценарии по обратной связи от отдела продаж.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="wrap">
+        <div class="cta-block">
+          <h2 data-i18n="contact.h2">Подключите ИИ к своей CRM</h2>
+          <p data-i18n="contact.p">Расскажите, какая у вас система и что хотите автоматизировать — предложим архитектуру агента и сроки без навязанного «коробочного» решения.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" id="contactMail" href="mailto:sales@example.com" data-i18n="contact.mail">Написать на почту</a>
+            <a class="btn btn-ghost" href="tel:+70000000000" data-i18n="contact.call">Позвонить</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p data-i18n="footer.p">© 2026 AI×CRM. ИИ-агенты для любых CRM-систем.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      /*
+        Реальная LLM из браузера напрямую к OpenAI / Anthropic и т.п. не подключают:
+        ключ нельзя светить в HTML, плюс у API обычно нет CORS для произвольного сайта.
+
+        Решение: маленький прокси (Cloudflare Worker, Firebase Function, свой сервер),
+        который хранит API_KEY и вызывает модель. Здесь укажите URL прокси.
+
+        Прокси: POST JSON { "sessionId"?: "uuid", "messages": [ { "role":"system"|"user"|"assistant", "content":"..." }, ... ] }
+        Заголовок (опционально): X-Chat-Session-Id — тот же UUID; без sessionId сервер остаётся stateless (только последняя реплика пользователя).
+        Ответ: { "reply": "текст", "sessionId"?: "..." }  (или совместимый формат ниже в parseReply).
+
+        Пример заголовка защиты: LLM_PROXY_SECRET — необязательный Bearer-токен,
+        который ваш прокси проверяет вместо публичного доступа.
+      */
+      var LLM_PROXY_URL = "/api/chat";
+      var LLM_PROXY_SECRET = "";
+
+      var LOCALE = window.AFS_LOCALE === "en" ? "en" : "ru";
+      var CHAT_SESSION_STORAGE_KEY = "aimyrtana_agentforsite_chat_sid_" + LOCALE;
+      var CHAT_HISTORY_STORAGE_KEY = "aimyrtana_agentforsite_chat_hist_" + LOCALE;
+
+      var STR = {
+        ru: {
+          "meta.title": "ИИ-агент для любой CRM — подключение под ключ",
+          "meta.desc":
+            "Подключаем ИИ-агента любой сложности к вашей CRM: amoCRM, Битрикс24, Salesforce и любые другие системы.",
+          "nav.features": "Преимущества",
+          "nav.crm": "Любая CRM",
+          "nav.how": "Как работает",
+          "nav.demo": "Демо",
+          "nav.contact": "Заявка",
+          "hero.badge": "Интеграция ИИ под ключ",
+          "hero.h1_before": "ИИ-агент ",
+          "hero.h1_em": "любой сложности",
+          "hero.h1_after": " — к вашей CRM без ограничений",
+          "hero.lead":
+            "Подключаем умных ассистентов к amoCRM, Битрикс24, Salesforce, HubSpot и к любой другой системе — даже к самописной. Один контур: лиды, сделки, задачи и переписки.",
+          "hero.cta1": "Обсудить внедрение",
+          "hero.cta2": "Как мы подключаем",
+          "demo.h2": "Как это выглядит вживую",
+          "demo.desc":
+            "Слева — опросник: вы описываете, какого агента хотите, консультант задаёт уточняющие вопросы в том же чате. Справа — живой стек задач на реализацию: пункты появляются и уточняются по мере диалога. Без прокси ответы и задачи имитируются на странице.",
+          "demo.panel1_aria": "Опросник: запрос на разработку агента",
+          "demo.panel1_title": "Опросник: что нужно от агента",
+          "demo.panel1_sub": "Вы — заказчик; в том же чате агент уточняет требования вопросами",
+          "demo.welcome":
+            "Здравствуйте! Кратко опишите, какого ИИ-агента вы хотите под свою CRM или процесс: для чего он нужен, в каком канале будет работать и что должен уметь делать без человека.",
+          "demo.chat_placeholder":
+            "Например: Нужен агент в amoCRM, чтобы квалифицировать лиды из Telegram и ставить задачи менеджеру",
+          "demo.send": "Отправить",
+          "demo.panel2_aria": "Стек задач на реализацию",
+          "demo.panel2_title": "Стек задач на реализацию",
+          "demo.panel2_sub": "Параллельно диалогу фиксируем работы, которые предстоит сделать — добавляем и уточняем",
+          "demo.tasks_empty": "Задачи появятся после вашего первого сообщения",
+          "demo.note_demo":
+            "Демонстрация на странице: без прокси сообщения не уходят в интернет. Чтобы отвечала реальная LLM, задайте <code style=\"font-size:0.85em;opacity:0.9\">LLM_PROXY_URL</code> в скрипте внизу страницы и поднимите прокси с секретным ключом.",
+          "demo.note_proxy":
+            "Включён режим с прокси: сообщения уходят на <code style=\"font-size:0.85em;opacity:0.9\">__URL__</code>. Ключ к модели должен храниться только на сервере прокси.",
+          "features.h2": "Почему это выгодно бизнесу",
+          "features.desc":
+            "Не заменяем вашу CRM — усиливаем её: автоматизация рутины, скорость ответа клиентам и прозрачность воронки.",
+          "features.f1_h": "Любая сложность агента",
+          "features.f1_p":
+            "От простого автоответа и квалификации лида до многошаговых сценариев, RAG по вашим документам и действий «как у менеджера».",
+          "features.f2_h": "Любая CRM",
+          "features.f2_p":
+            "Облачные и коробочные системы, API и вебхуки, кастомные поля и статусы — строим связку под ваш процесс продаж.",
+          "features.f3_h": "Меньше ручной работы",
+          "features.f3_p":
+            "ИИ создаёт и обновляет карточки, переносит этапы, ставит задачи коллегам и подтягивает контекст из переписки.",
+          "features.f4_h": "Без хаоса в данных",
+          "features.f4_p":
+            "Правила доступа, логирование и согласование сценариев — чтобы агент работал предсказуемо и безопасно для вашей базы.",
+          "crm.h2": "Не важно, какая у вас CRM",
+          "crm.desc":
+            "Если у системы есть API, интеграции или экспорт — мы найдём способ стабильно стыковать агента с вашими процессами.",
+          "crm.strip": "Примеры систем",
+          "crm.pills_aria": "Примеры поддерживаемых CRM",
+          "crm.note_html": "Нет в списке? <strong>Это нормально</strong> — напишите название системы, разберёмся на созвоне.",
+          "how.h2": "Как мы подключаем",
+          "how.desc": "Короткий цикл от идеи до работающего агента в вашей CRM — без лишней бюрократии.",
+          "how.s1_num": "Шаг 1",
+          "how.s1_h": "Аудит и сценарий",
+          "how.s1_p":
+            "Смотрим вашу CRM, воронку и точки касания. Формируем задачи агента: что он может менять, кому писать и чего не делает.",
+          "how.s2_num": "Шаг 2",
+          "how.s2_h": "Интеграция и тесты",
+          "how.s2_p":
+            "Подключаемся к API, настраиваем вебхуки и права. Прогоняем тестовые сделки и переписки, правим промпты и правила.",
+          "how.s3_num": "Шаг 3",
+          "how.s3_h": "Запуск и сопровождение",
+          "how.s3_p":
+            "Включаем на боевых объёмах, следим за метриками и дорабатываем сценарии по обратной связи от отдела продаж.",
+          "contact.h2": "Подключите ИИ к своей CRM",
+          "contact.p":
+            "Расскажите, какая у вас система и что хотите автоматизировать — предложим архитектуру агента и сроки без навязанного «коробочного» решения.",
+          "contact.mail": "Написать на почту",
+          "contact.call": "Позвонить",
+          "contact.mail_subject": "ИИ-агент для CRM",
+          "footer.p": "© 2026 AI×CRM. ИИ-агенты для любых CRM-систем.",
+          "chat.label_client": "Клиент",
+          "chat.label_consultant": "Консультант",
+          "task.added": "Добавлено",
+          "task.updated": "Уточнено",
+          "system_prompt":
+            "Ты консультант по внедрению ИИ-агентов в CRM. Клиент описывает, какого агента хочет. Отвечай на том же языке, на котором пишет пользователь. Кратко уточняй требования: 1–2 конкретных вопроса (CRM/система, каналы, автоматические действия, ограничения, объёмы). Не обещай сроков и цен; не выдумывай факты о клиенте.",
+          "err.json": "Не JSON в ответе",
+          "err.proxy": "Ошибка прокси",
+          "err.no_text": "В ответе нет текста (ожидается поле reply или message)",
+          "chat.fallback_reply":
+            "Сейчас не удалось связаться с ассистентом. Напишите на почту или позвоните — продолжим уточнение требований.",
+          "chat.task_err": "Связь с моделью недоступна (__ERR__): проверить прокси и предложить клиенту офлайн-канал.",
+          "task.L1":
+            "Актуализировать стек задач по последнему ответу консультанта и зафиксировать открытые вопросы.",
+          "task.L2": "Согласовать интеграцию с указанной CRM/API, маппинг полей и вебхуки.",
+          "task.L3": "Подключить заявленные каналы и маршрутизацию сообщений к агенту.",
+          "task.L4": "Описать автодействия в CRM (сделки, задачи, поля) и правила эскалации к человеку.",
+          "task.L0": "Зафиксировать формулировку заказчика и продолжить сбор требований вопросами.",
+          "task.L_sec": "Учесть требования по безопасности, ролям и обработке персональных данных.",
+          "task.T_iter": "Синхронизировать ТЗ с последними ответами клиента (итерация __N__)."
+        },
+        en: {
+          "meta.title": "AI agent for any CRM — full integration service",
+          "meta.desc":
+            "We connect AI agents of any complexity to your CRM: amoCRM, Bitrix24, Salesforce, and other systems.",
+          "nav.features": "Benefits",
+          "nav.crm": "Any CRM",
+          "nav.how": "How it works",
+          "nav.demo": "Demo",
+          "nav.contact": "Contact",
+          "hero.badge": "Turnkey AI integration",
+          "hero.h1_before": "An AI agent ",
+          "hero.h1_em": "of any complexity",
+          "hero.h1_after": " — for your CRM, without limits",
+          "hero.lead":
+            "We connect smart assistants to amoCRM, Bitrix24, Salesforce, HubSpot, and any other stack — including custom CRM. One loop: leads, deals, tasks, and conversations.",
+          "hero.cta1": "Discuss a project",
+          "hero.cta2": "How we integrate",
+          "demo.h2": "See it live",
+          "demo.desc":
+            "On the left — a short questionnaire: you describe the agent you need, the consultant asks follow-ups in the same chat. On the right — a live task backlog for delivery: items appear and refine as you talk. Without a proxy, replies and tasks are simulated in the page.",
+          "demo.panel1_aria": "Questionnaire: agent requirements",
+          "demo.panel1_title": "Questionnaire: what you need from the agent",
+          "demo.panel1_sub": "You are the buyer; the agent clarifies requirements in the same chat",
+          "demo.welcome":
+            "Hello! Briefly describe the AI agent you want for your CRM or process: what it is for, which channel it should use, and what it should do without a human in the loop.",
+          "demo.chat_placeholder":
+            "e.g. I need an agent in amoCRM to qualify Telegram leads and assign tasks to a sales rep",
+          "demo.send": "Send",
+          "demo.panel2_aria": "Implementation task stack",
+          "demo.panel2_title": "Implementation task stack",
+          "demo.panel2_sub": "Alongside the chat we capture work to be done — we add and refine items as you go",
+          "demo.tasks_empty": "Tasks will appear after your first message",
+          "demo.note_demo":
+            "On-page demo: without a proxy, messages stay in the browser. To use a real LLM, set <code style=\"font-size:0.85em;opacity:0.9\">LLM_PROXY_URL</code> in the script at the bottom and host a proxy with your secret key.",
+          "demo.note_proxy":
+            "Proxy mode: requests go to <code style=\"font-size:0.85em;opacity:0.9\">__URL__</code>. The model API key must stay on the server only.",
+          "features.h2": "Why it pays off",
+          "features.desc":
+            "We do not replace your CRM — we strengthen it: less manual work, faster replies, and a clearer pipeline.",
+          "features.f1_h": "Any agent complexity",
+          "features.f1_p":
+            "From simple auto-replies and lead scoring to multi-step flows, RAG on your documents, and actions “like a sales rep”.",
+          "features.f2_h": "Any CRM",
+          "features.f2_p":
+            "Cloud or on-prem, APIs and webhooks, custom fields and statuses — we wire everything to your sales process.",
+          "features.f3_h": "Less manual work",
+          "features.f3_p":
+            "AI creates and updates records, moves stages, assigns tasks to teammates, and pulls context from threads.",
+          "features.f4_h": "No data chaos",
+          "features.f4_p":
+            "Access rules, logging, and scenario governance so the agent behaves predictably and safely for your data.",
+          "crm.h2": "Your CRM does not matter",
+          "crm.desc":
+            "If the system has an API, integrations, or export, we will find a stable way to connect the agent to your workflows.",
+          "crm.strip": "Example systems",
+          "crm.pills_aria": "Examples of supported CRMs",
+          "crm.note_html":
+            "Not on the list? <strong>That is fine</strong> — tell us the name and we will figure it out on a call.",
+          "how.h2": "How we integrate",
+          "how.desc": "A short path from idea to a working agent in your CRM — without extra bureaucracy.",
+          "how.s1_num": "Step 1",
+          "how.s1_h": "Audit and scenario",
+          "how.s1_p":
+            "We review your CRM, funnel, and touchpoints. We define what the agent may change, who it notifies, and what it must not do.",
+          "how.s2_num": "Step 2",
+          "how.s2_h": "Integration and tests",
+          "how.s2_p":
+            "We connect to APIs, configure webhooks and permissions, run test deals and threads, tune prompts and rules.",
+          "how.s3_num": "Step 3",
+          "how.s3_h": "Launch and support",
+          "how.s3_p":
+            "We go live on real volume, watch metrics, and iterate with feedback from your sales team.",
+          "contact.h2": "Connect AI to your CRM",
+          "contact.p":
+            "Tell us which system you use and what you want to automate — we will propose an agent architecture and timeline without a forced “boxed” product.",
+          "contact.mail": "Email us",
+          "contact.call": "Call",
+          "contact.mail_subject": "AI agent for CRM",
+          "footer.p": "© 2026 AI×CRM. AI agents for any CRM stack.",
+          "chat.label_client": "You",
+          "chat.label_consultant": "Consultant",
+          "task.added": "Added",
+          "task.updated": "Updated",
+          "system_prompt":
+            "You are a consultant helping companies deploy AI agents in their CRM. The user describes the agent they want. Always reply in the same language the user writes in. Keep clarifying questions short (1–2 concrete questions: CRM/system, channels, automated actions, constraints, volume). Do not promise timelines or prices; do not invent facts about the customer.",
+          "err.json": "Response was not JSON",
+          "err.proxy": "Proxy error",
+          "err.no_text": "No assistant text in the response (expected reply or message field)",
+          "chat.fallback_reply":
+            "We could not reach the assistant right now. Email or call us — we will continue scoping your requirements.",
+          "chat.task_err": "Model unavailable (__ERR__): check the proxy and offer the customer an offline channel.",
+          "task.L1": "Refresh the task stack from the consultant’s last reply and capture open questions.",
+          "task.L2": "Align on integration with the named CRM/API, field mapping, and webhooks.",
+          "task.L3": "Connect the requested channels and route messages to the agent.",
+          "task.L4": "Describe CRM automations (deals, tasks, fields) and human-escalation rules.",
+          "task.L0": "Capture the buyer’s wording and continue requirements discovery with questions.",
+          "task.L_sec": "Account for security, roles, and personal-data handling requirements.",
+          "task.T_iter": "Sync the spec with the latest customer answers (iteration __N__)."
+        }
+      };
+
+      var SIM_REPLIES = {
+        ru: [
+          "Спасибо за описание. Уточните, пожалуйста: какая CRM или учётная система (или самопис), и есть ли уже API/вебхуки?",
+          "Понял контекст. Нужны ли агенту действия «как у менеджера» — смена этапов, поля, задачи коллегам — или достаточно ответов в переписке?",
+          "Ок. Есть ли требования по безопасности и ролям (кто что видит) и ожидаемые объёмы обращений в день?",
+          "Хорошо. После созвона мы сможем разложить это в точные интеграции и сценарии. Есть ли дедлайн или пилот на ограниченной воронке?",
+          "Принято. Если появятся примеры типовых диалогов или документы для ответов — пришлите, это ускорит настройку."
+        ],
+        en: [
+          "Thanks for the context. Which CRM or system (or custom build) is it, and do you already have an API or webhooks?",
+          "Understood. Should the agent act “like a rep” — stages, fields, tasks for teammates — or is chat-only enough?",
+          "Got it. Any security or role requirements (who sees what) and expected conversation volume per day?",
+          "Good. After a call we can break this into concrete integrations and flows. Any deadline or a pilot on part of the funnel?",
+          "Noted. If you have sample dialogs or documents for answers, send them — it speeds up tuning."
+        ]
+      };
+
+      var SIM_TASK_PLANS = {
+        ru: [
+          [
+            { id: "T1", text: "Зафиксировать цель агента и сценарии (квалификация, ответы, действия в CRM)." },
+            { id: "T2", text: "Определить целевую систему, каналы (чат, почта, мессенджеры) и точки входа." }
+          ],
+          [
+            { id: "T3", text: "Спроектировать доступ к API CRM: сущности, поля, статусы, права." },
+            {
+              id: "T1",
+              text: "Уточнить сценарии: только переписка или также автоматические изменения в CRM и задачи сотрудникам."
+            }
+          ],
+          [
+            { id: "T4", text: "Политики безопасности, разграничение ролей, логирование и контуры данных." },
+            { id: "T5", text: "Оценка нагрузки и отказоустойчивости (очереди, лимиты API, пики обращений)." }
+          ],
+          [{ id: "T6", text: "План пилота: объём воронки, критерии успеха, дата запуска и контрольные метрики." }],
+          [{ id: "T7", text: "Сбор примеров диалогов / базы знаний для RAG или шаблонов ответов." }]
+        ],
+        en: [
+          [
+            { id: "T1", text: "Capture the agent goal and scenarios (qualification, replies, CRM actions)." },
+            { id: "T2", text: "Define the target system, channels (chat, email, messengers), and entry points." }
+          ],
+          [
+            { id: "T3", text: "Design CRM API access: entities, fields, statuses, permissions." },
+            {
+              id: "T1",
+              text: "Clarify scenarios: chat-only vs automated CRM changes and tasks for staff."
+            }
+          ],
+          [
+            { id: "T4", text: "Security policies, role boundaries, logging, and data boundaries." },
+            { id: "T5", text: "Load and resilience (queues, API limits, traffic spikes)." }
+          ],
+          [{ id: "T6", text: "Pilot plan: funnel scope, success criteria, launch date, and KPIs." }],
+          [{ id: "T7", text: "Collect sample dialogs / knowledge for RAG or response templates." }]
+        ]
+      };
+
+      function t(key) {
+        var pack = STR[LOCALE] || STR.ru;
+        if (pack[key]) return pack[key];
+        return STR.ru[key] || key;
+      }
+
+      function applyPageI18n() {
+        document.querySelectorAll("[data-i18n]").forEach(function (el) {
+          var k = el.getAttribute("data-i18n");
+          if (k) el.textContent = t(k);
+        });
+        document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+          var k = el.getAttribute("data-i18n-html");
+          if (k) el.innerHTML = t(k);
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+          var k = el.getAttribute("data-i18n-placeholder");
+          if (k) el.setAttribute("placeholder", t(k));
+        });
+        document.querySelectorAll("[data-i18n-aria-label]").forEach(function (el) {
+          var k = el.getAttribute("data-i18n-aria-label");
+          if (k) el.setAttribute("aria-label", t(k));
+        });
+        var titleEl = document.querySelector("title[data-i18n-title]");
+        if (titleEl) document.title = t("meta.title");
+        var metaD = document.querySelector("meta[data-i18n-desc]");
+        if (metaD) metaD.setAttribute("content", t("meta.desc"));
+        var mail = document.getElementById("contactMail");
+        if (mail) mail.setAttribute("href", "mailto:sales@example.com?subject=" + encodeURIComponent(t("contact.mail_subject")));
+        document.querySelectorAll("[data-lang-link]").forEach(function (a) {
+          var lang = a.getAttribute("data-lang-link");
+          var h = typeof location !== "undefined" && location.hash ? location.hash : "";
+          a.setAttribute("href", "/" + lang + "/" + h);
+          a.classList.toggle("active", lang === LOCALE);
+        });
+      }
+
+      applyPageI18n();
+      window.addEventListener("hashchange", function () {
+        var h = location.hash || "";
+        document.querySelectorAll("[data-lang-link]").forEach(function (a) {
+          var lang = a.getAttribute("data-lang-link");
+          a.setAttribute("href", "/" + lang + "/" + h);
+        });
+      });
+
+      var chatMessages = document.getElementById("chatMessages");
+      var chatInput = document.getElementById("chatInput");
+      var chatSend = document.getElementById("chatSend");
+      var taskStack = document.getElementById("taskStack");
+      var taskStackEmpty = document.getElementById("taskStackEmpty");
+      var demoNote = document.getElementById("demoNote");
+      if (!chatMessages || !chatInput || !chatSend || !taskStack) return;
+
+      var busy = false;
+      var demoTurn = 0;
+      var taskStore = {};
+
+      var SYSTEM_PROMPT = t("system_prompt");
+      var chatHistory = [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "assistant", content: t("demo.welcome") }
+      ];
+
+      if (demoNote) {
+        if (LLM_PROXY_URL) {
+          demoNote.innerHTML = t("demo.note_proxy").replace(/__URL__/g, String(LLM_PROXY_URL).replace(/</g, ""));
+        } else {
+          demoNote.innerHTML = t("demo.note_demo");
+        }
+      }
+
+      function appendClient(text) {
+        var el = document.createElement("div");
+        el.className = "chat-bubble client";
+        var lab = document.createElement("div");
+        lab.className = "bubble-label";
+        lab.textContent = t("chat.label_client");
+        el.appendChild(lab);
+        el.appendChild(document.createTextNode(text));
+        chatMessages.appendChild(el);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function appendBusiness(text) {
+        var el = document.createElement("div");
+        el.className = "chat-bubble business";
+        var lab = document.createElement("div");
+        lab.className = "bubble-label";
+        lab.textContent = t("chat.label_consultant");
+        el.appendChild(lab);
+        el.appendChild(document.createTextNode(text));
+        chatMessages.appendChild(el);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function redrawChatFromHistory() {
+        chatMessages.innerHTML = "";
+        for (var i = 0; i < chatHistory.length; i++) {
+          var m = chatHistory[i];
+          if (!m) continue;
+          var r = String(m.role || "").toLowerCase();
+          if (r === "user") appendClient(m.content);
+          else if (r === "assistant") appendBusiness(m.content);
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function persistChatState() {
+        try {
+          if (!sessionStorage.getItem(CHAT_SESSION_STORAGE_KEY)) return;
+          sessionStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
+        } catch (e) {}
+      }
+
+      function tryRestoreChatFromStorage() {
+        try {
+          var sid = sessionStorage.getItem(CHAT_SESSION_STORAGE_KEY);
+          var raw = sessionStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+          if (!sid || !raw) return;
+          var arr = JSON.parse(raw);
+          if (!Array.isArray(arr) || arr.length < 2) return;
+          for (var j = 0; j < arr.length; j++) {
+            var x = arr[j];
+            if (!x || typeof x.role !== "string" || typeof x.content !== "string") return;
+          }
+          chatHistory = arr;
+          redrawChatFromHistory();
+        } catch (e) {
+          try {
+            sessionStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+          } catch (e2) {}
+        }
+      }
+
+      tryRestoreChatFromStorage();
+
+      function setTaskEmptyVisible(visible) {
+        if (taskStackEmpty) taskStackEmpty.style.display = visible ? "block" : "none";
+      }
+
+      function renderTaskEl(id, text, badgeLabel, isUpdate) {
+        var existing = taskStore[id];
+        if (existing) {
+          var textEl = existing.querySelector(".task-stack-text");
+          if (textEl) textEl.textContent = text;
+          var badge = existing.querySelector(".task-stack-badge");
+          if (badge) {
+            var bl = isUpdate ? t("task.updated") : badgeLabel;
+            badge.textContent = bl;
+            badge.className =
+              bl === t("task.added") || bl === t("task.updated") ? "task-stack-badge" : "task-stack-badge muted";
+          }
+          existing.classList.remove("updated");
+          void existing.offsetWidth;
+          existing.classList.add("updated");
+          taskStack.scrollTop = taskStack.scrollHeight;
+          return;
+        }
+        setTaskEmptyVisible(false);
+        var wrap = document.createElement("div");
+        wrap.className = "task-stack-item";
+        wrap.setAttribute("data-task-id", id);
+        var meta = document.createElement("div");
+        meta.className = "task-stack-meta";
+        var tid = document.createElement("span");
+        tid.className = "task-stack-id";
+        tid.textContent = id;
+        var badge = document.createElement("span");
+        badge.className =
+          badgeLabel === t("task.added") || badgeLabel === t("task.updated")
+            ? "task-stack-badge"
+            : "task-stack-badge muted";
+        badge.textContent = badgeLabel;
+        meta.appendChild(tid);
+        meta.appendChild(badge);
+        var body = document.createElement("div");
+        body.className = "task-stack-text";
+        body.textContent = text;
+        wrap.appendChild(meta);
+        wrap.appendChild(body);
+        taskStack.appendChild(wrap);
+        taskStore[id] = wrap;
+        taskStack.scrollTop = taskStack.scrollHeight;
+      }
+
+      function applyTaskOp(op) {
+        if (!op || !op.id) return;
+        var isUpdate = !!taskStore[op.id];
+        renderTaskEl(op.id, op.text, isUpdate ? t("task.updated") : t("task.added"), isUpdate);
+      }
+
+      function runTaskSequence(ops, done) {
+        var i = 0;
+        function next() {
+          if (i >= ops.length) {
+            if (done) done();
+            return;
+          }
+          applyTaskOp(ops[i]);
+          i++;
+          setTimeout(next, 380 + Math.random() * 320);
+        }
+        next();
+      }
+
+      function tasksForLlmPathUser(userText) {
+        var u = (userText || "").toLowerCase();
+        var ops = [];
+        if (
+          /amo|битрикс|bitrix|salesforce|hubspot|crm|erp|самопис|пайп|pipedrive|zoho|megaplan|retail|custom|on-?prem/i.test(
+            u
+          )
+        ) {
+          ops.push({ id: "L2", text: t("task.L2") });
+        }
+        if (/telegram|whatsapp|почт|email|чат|канал|телег|мессендж|mail|messenger|slack|sms/i.test(u)) {
+          ops.push({ id: "L3", text: t("task.L3") });
+        }
+        if (/задач|сделк|этап|поле|лид|квалифиц|воронк|статус|deal|lead|pipeline|stage|field|qualif/i.test(u)) {
+          ops.push({ id: "L4", text: t("task.L4") });
+        }
+        if (/безопас|рол|доступ|персонал|152|пдн|security|role|access|gdpr|privacy|pii/i.test(u)) {
+          ops.push({ id: "L-sec", text: t("task.L_sec") });
+        }
+        if (ops.length === 0) {
+          ops.push({ id: "L0", text: t("task.L0") });
+        }
+        return ops;
+      }
+
+      function ensureChatSessionId() {
+        try {
+          var s = sessionStorage.getItem(CHAT_SESSION_STORAGE_KEY);
+          if (s) return s;
+          if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+            s = crypto.randomUUID();
+          } else {
+            s = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+              var r = (Math.random() * 16) | 0;
+              var v = c === "x" ? r : (r & 0x3) | 0x8;
+              return v.toString(16);
+            });
+          }
+          sessionStorage.setItem(CHAT_SESSION_STORAGE_KEY, s);
+          return s;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function parseReply(data) {
+        if (!data || typeof data !== "object") return "";
+        if (typeof data.reply === "string") return data.reply;
+        if (typeof data.message === "string") return data.message;
+        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+          return String(data.choices[0].message.content);
+        }
+        return "";
+      }
+
+      function callLlmProxy(messages, onSuccess, onError) {
+        var headers = { "Content-Type": "application/json" };
+        if (LLM_PROXY_SECRET) headers["Authorization"] = "Bearer " + LLM_PROXY_SECRET;
+        var sid = ensureChatSessionId();
+        var body = { messages: messages };
+        if (sid) {
+          body.sessionId = sid;
+          headers["X-Chat-Session-Id"] = sid;
+        }
+        fetch(LLM_PROXY_URL, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(body)
+        })
+          .then(function (res) {
+            return res.text().then(function (text) {
+              var data;
+              try {
+                data = JSON.parse(text);
+              } catch (e) {
+                throw new Error(t("err.json"));
+              }
+              if (!res.ok) throw new Error((data && data.error) || res.statusText || t("err.proxy"));
+              var reply = parseReply(data);
+              if (!reply) throw new Error(t("err.no_text"));
+              onSuccess(reply);
+            });
+          })
+          .catch(function (err) {
+            onError(err && err.message ? err.message : String(err));
+          });
+      }
+
+      function send() {
+        var text = (chatInput.value || "").trim();
+        if (!text || busy) return;
+        busy = true;
+        chatSend.disabled = true;
+        appendClient(text);
+        chatInput.value = "";
+        chatHistory.push({ role: "user", content: text });
+        if (LLM_PROXY_URL) ensureChatSessionId();
+        persistChatState();
+
+        if (LLM_PROXY_URL) {
+          runTaskSequence(tasksForLlmPathUser(text), function () {
+            callLlmProxy(
+              chatHistory,
+              function (reply) {
+                chatHistory.push({ role: "assistant", content: reply });
+                appendBusiness(reply);
+                persistChatState();
+                runTaskSequence(
+                  [
+                    {
+                      id: "L1",
+                      text: t("task.L1")
+                    }
+                  ],
+                  function () {
+                    busy = false;
+                    chatSend.disabled = false;
+                    chatInput.focus();
+                  }
+                );
+              },
+              function (errMsg) {
+                applyTaskOp({
+                  id: "L-err",
+                  text: t("chat.task_err").replace(/__ERR__/g, errMsg)
+                });
+                appendBusiness(t("chat.fallback_reply"));
+                chatHistory.pop();
+                persistChatState();
+                busy = false;
+                chatSend.disabled = false;
+                chatInput.focus();
+              }
+            );
+          });
+          return;
+        }
+
+        var plans = SIM_TASK_PLANS[LOCALE] || SIM_TASK_PLANS.ru;
+        var planIdx = Math.min(demoTurn, plans.length - 1);
+        var taskOps = plans[planIdx];
+        if (demoTurn >= plans.length) {
+          taskOps = [{ id: "T1", text: t("task.T_iter").replace(/__N__/g, String(demoTurn + 1)) }];
+        }
+
+        runTaskSequence(taskOps, function () {
+          var replies = SIM_REPLIES[LOCALE] || SIM_REPLIES.ru;
+          var replyIdx = Math.min(demoTurn, replies.length - 1);
+          appendBusiness(replies[replyIdx]);
+          demoTurn += 1;
+          busy = false;
+          chatSend.disabled = false;
+          chatInput.focus();
+        });
+      }
+
+      chatSend.addEventListener("click", send);
+      chatInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

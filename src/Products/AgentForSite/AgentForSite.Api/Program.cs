@@ -10,6 +10,30 @@ builder.Services.AddAgentForSiteStack();
 
 var app = builder.Build();
 
+async Task<IResult> ServeLocalizedLanding(string locale)
+{
+    if (locale is not "ru" and not "en")
+        return Results.Redirect("/ru/");
+
+    var path = Path.Combine(app.Environment.ContentRootPath, "Landing", "landing.html");
+    if (!File.Exists(path))
+        return Results.NotFound();
+
+    var html = await File.ReadAllTextAsync(path).ConfigureAwait(false);
+    var langAttr = locale == "en" ? "en" : "ru";
+    html = html.Replace("__HTML_LANG__", langAttr, StringComparison.Ordinal);
+    html = html.Replace("__AFS_LOCALE__", locale, StringComparison.Ordinal);
+    return Results.Content(html, "text/html; charset=utf-8");
+}
+
+app.MapGet("/", () => Results.Redirect("/ru/"));
+app.MapGet("/ru", () => Results.Redirect("/ru/"));
+app.MapGet("/en", () => Results.Redirect("/en/"));
+app.MapGet("/ru/", () => ServeLocalizedLanding("ru"));
+app.MapGet("/en/", () => ServeLocalizedLanding("en"));
+app.MapGet("/ru/index.html", () => ServeLocalizedLanding("ru"));
+app.MapGet("/en/index.html", () => ServeLocalizedLanding("en"));
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
