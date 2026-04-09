@@ -493,8 +493,8 @@
       max-height: 120px;
       padding: 10px 12px;
       border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.085);
       color: var(--text);
       font-family: var(--font);
       font-size: 0.9rem;
@@ -502,12 +502,13 @@
 
     .demo-compose textarea::placeholder {
       color: var(--text-muted);
-      opacity: 0.8;
+      opacity: 0.95;
     }
 
     .demo-compose textarea:focus {
       outline: none;
-      border-color: rgba(110, 231, 183, 0.35);
+      border-color: rgba(110, 231, 183, 0.55);
+      box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.16);
     }
 
     .demo-compose .btn-send {
@@ -756,8 +757,8 @@
 
     <section id="demo" class="demo-section">
       <div class="wrap">
-        <h2 data-i18n="demo.h2">Как это выглядит вживую</h2>
-        <p class="section-desc" data-i18n="demo.desc">Слева — опросник: вы описываете, какого агента хотите, консультант задаёт уточняющие вопросы в том же чате. Справа — живой стек задач на реализацию: пункты появляются и уточняются по мере диалога. Без прокси ответы и задачи имитируются на странице.</p>
+        <h2 data-i18n="demo.h2">Опишите агента вашей мечты</h2>
+        <p class="section-desc" data-i18n="demo.desc">В одном окне — опросник: вы описываете, какого агента хотите, консультант задаёт уточняющие вопросы в том же чате. Рядом — живой стек задач на реализацию: пункты появляются и уточняются по мере диалога. Без прокси ответы и задачи имитируются на странице.</p>
         <div class="demo-grid">
           <div class="demo-panel" data-i18n-aria-label="demo.panel1_aria">
             <div class="demo-panel-head">
@@ -928,16 +929,16 @@
             "Подключаем умных ассистентов к amoCRM, Битрикс24, Salesforce, HubSpot и к любой другой системе — даже к самописной. Один контур: лиды, сделки, задачи и переписки.",
           "hero.cta1": "Обсудить внедрение",
           "hero.cta2": "Как мы подключаем",
-          "demo.h2": "Как это выглядит вживую",
+          "demo.h2": "Опишите агента вашей мечты",
           "demo.desc":
-            "Слева — опросник: вы описываете задачу своими словами; консультант в чате наращивает понятный черновик стека (без внутренних технологий) и задаёт короткие вопросы. Справа — живой стек задач на реализацию. Без прокси ответы и задачи имитируются на странице.",
+            "В одном окне — опросник: вы описываете задачу своими словами; консультант в чате наращивает понятный черновик стека (без внутренних технологий) и задаёт короткие вопросы. Рядом — живой стек задач на реализацию. Без прокси ответы и задачи имитируются на странице.",
           "demo.panel1_aria": "Опросник: запрос на разработку агента",
           "demo.panel1_title": "Опросник: что нужно от агента",
           "demo.panel1_sub": "Вы — заказчик; в том же чате агент уточняет требования вопросами",
           "demo.welcome":
             "Здравствуйте! Опишите своими словами, что вы хотите автоматизировать или какой агент вам нужен: канал (сайт, мессенджер, CRM, почта), что на входе и какой результат на выходе. Я буду показывать черновик стека простыми блоками — без Redis и Kubernetes — и задавать короткие уточняющие вопросы.",
           "demo.chat_placeholder":
-            "Например: Хочу бота в Telegram, который принимает фото чеков и отвечает списком цен",
+            "Введите текст…",
           "demo.send": "Отправить",
           "demo.panel2_aria": "Стек задач на реализацию",
           "demo.panel2_title": "Стек задач на реализацию",
@@ -1030,16 +1031,16 @@
             "We connect smart assistants to amoCRM, Bitrix24, Salesforce, HubSpot, and any other stack — including custom CRM. One loop: leads, deals, tasks, and conversations.",
           "hero.cta1": "Discuss a project",
           "hero.cta2": "How we integrate",
-          "demo.h2": "See it live",
+          "demo.h2": "Describe your dream agent",
           "demo.desc":
-            "On the left — you describe what you need in plain language; the consultant grows a client-friendly draft stack (no internal tech jargon) and asks short follow-ups. On the right — a live implementation task stack. Without a proxy, replies and tasks are simulated in the page.",
+            "In one window you describe what you need in plain language; the consultant grows a client-friendly draft stack (no internal tech jargon) and asks short follow-ups. Nearby you see a live implementation task stack. Without a proxy, replies and tasks are simulated in the page.",
           "demo.panel1_aria": "Questionnaire: agent requirements",
           "demo.panel1_title": "Questionnaire: what you need from the agent",
           "demo.panel1_sub": "You are the buyer; the agent clarifies requirements in the same chat",
           "demo.welcome":
             "Hello! In your own words, describe what you want to automate or what kind of agent you need: channel (website, messenger, CRM, email), what comes in, and the outcome you expect. I will show a draft stack in plain building blocks — no Redis or Kubernetes — and ask short follow-up questions.",
           "demo.chat_placeholder":
-            "e.g. I want a Telegram bot that takes receipt photos and replies with a price list",
+            "Enter text…",
           "demo.send": "Send",
           "demo.panel2_aria": "Implementation task stack",
           "demo.panel2_title": "Implementation task stack",
