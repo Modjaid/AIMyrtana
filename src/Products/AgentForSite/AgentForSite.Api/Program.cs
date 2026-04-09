@@ -10,6 +10,20 @@ builder.Services.AddAgentForSiteStack();
 
 var app = builder.Build();
 
+// Redirect /ru and /en to trailing-slash URLs without registering both /ru and /ru/ as endpoints
+// (otherwise GET /ru/ can match both and throws AmbiguousMatchException).
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? "";
+    if (path is "/ru" or "/en")
+    {
+        context.Response.Redirect(path + "/", permanent: false);
+        return;
+    }
+
+    await next();
+});
+
 async Task<IResult> ServeLocalizedLanding(string locale)
 {
     if (locale is not "ru" and not "en")
@@ -27,8 +41,6 @@ async Task<IResult> ServeLocalizedLanding(string locale)
 }
 
 app.MapGet("/", () => Results.Redirect("/ru/"));
-app.MapGet("/ru", () => Results.Redirect("/ru/"));
-app.MapGet("/en", () => Results.Redirect("/en/"));
 app.MapGet("/ru/", () => ServeLocalizedLanding("ru"));
 app.MapGet("/en/", () => ServeLocalizedLanding("en"));
 app.MapGet("/ru/index.html", () => ServeLocalizedLanding("ru"));
@@ -36,7 +48,7 @@ app.MapGet("/en/index.html", () => ServeLocalizedLanding("en"));
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseHttpsRedirection();
+// Skip UseHttpsRedirection: HTTP-only Kestrel (local run, TLS at nginx) + Production otherwise yields 500.
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", product = "AgentForSite" }));
 app.MapAgentForSiteWebAdapter();

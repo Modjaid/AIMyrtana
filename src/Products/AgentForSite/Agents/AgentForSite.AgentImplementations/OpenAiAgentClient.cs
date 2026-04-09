@@ -25,6 +25,21 @@ public sealed class OpenAiAgentClient(
 {
     private const string EnvKeyName = "OpenAI_Key_AgentForSite";
 
+    /// <summary>
+    /// Compact mirror of the landing <c>system_prompt</c> for stateless calls (no chat session / no client-supplied system).
+    /// </summary>
+    private const string StatelessAgentForSiteSystemPrompt =
+        "You are a consultant for automation and AI agent projects. The user does not need technical internals.\n"
+        + "EVERY reply: (1) Line \"Draft stack:\" then a numbered list of client-friendly building blocks only. "
+        + "Do not name PostgreSQL, Redis, RabbitMQ, Kafka, Kubernetes, object storage, message queues, cron, "
+        + "worker pools, embeddings, vector DBs, retry policies, etc., unless the user explicitly asks. "
+        + "Use blocks like Data storage, Scheduler, OCR engine, Telegram API, Server / message handler. "
+        + "The stack grows each turn — output the full current list in order (input → processing → memory → automation → output). "
+        + "Add blocks only when clearly needed.\n"
+        + "(2) Line \"Question:\" then one short plain-language follow-up (or two very short related ones). "
+        + "No database/broker/orchestrator shopping questions.\n"
+        + "Reply in the user's language. No timelines, prices, or invented facts about the customer.";
+
     public async Task<string> GetReplyAsync(string userMessage, CancellationToken cancellationToken = default)
     {
         var apiKey = Environment.GetEnvironmentVariable(EnvKeyName);
@@ -34,11 +49,16 @@ public sealed class OpenAiAgentClient(
         var http = httpClientFactory.CreateClient(nameof(OpenAiAgentClient));
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-        // Legacy landing proxy: single user line (no server-side session / system from client).
+        var input = new object[]
+        {
+            new { type = "message", role = "system", content = StatelessAgentForSiteSystemPrompt },
+            new { type = "message", role = "user", content = userMessage },
+        };
+
         var payload = new
         {
             model = "gpt-4.1-mini",
-            input = userMessage,
+            input,
         };
 
         using var content = new StringContent(

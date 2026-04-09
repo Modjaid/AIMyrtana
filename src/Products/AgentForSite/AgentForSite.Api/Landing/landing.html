@@ -874,14 +874,14 @@
           "hero.cta2": "Как мы подключаем",
           "demo.h2": "Как это выглядит вживую",
           "demo.desc":
-            "Слева — опросник: вы описываете, какого агента хотите, консультант задаёт уточняющие вопросы в том же чате. Справа — живой стек задач на реализацию: пункты появляются и уточняются по мере диалога. Без прокси ответы и задачи имитируются на странице.",
+            "Слева — опросник: вы описываете задачу своими словами; консультант в чате наращивает понятный черновик стека (без внутренних технологий) и задаёт короткие вопросы. Справа — живой стек задач на реализацию. Без прокси ответы и задачи имитируются на странице.",
           "demo.panel1_aria": "Опросник: запрос на разработку агента",
           "demo.panel1_title": "Опросник: что нужно от агента",
           "demo.panel1_sub": "Вы — заказчик; в том же чате агент уточняет требования вопросами",
           "demo.welcome":
-            "Здравствуйте! Кратко опишите, какого ИИ-агента вы хотите под свою CRM или процесс: для чего он нужен, в каком канале будет работать и что должен уметь делать без человека.",
+            "Здравствуйте! Опишите своими словами, что вы хотите автоматизировать или какой агент вам нужен: канал (сайт, мессенджер, CRM, почта), что на входе и какой результат на выходе. Я буду показывать черновик стека простыми блоками — без Redis и Kubernetes — и задавать короткие уточняющие вопросы.",
           "demo.chat_placeholder":
-            "Например: Нужен агент в amoCRM, чтобы квалифицировать лиды из Telegram и ставить задачи менеджеру",
+            "Например: Хочу бота в Telegram, который принимает фото чеков и отвечает списком цен",
           "demo.send": "Отправить",
           "demo.panel2_aria": "Стек задач на реализацию",
           "demo.panel2_title": "Стек задач на реализацию",
@@ -938,7 +938,7 @@
           "task.added": "Добавлено",
           "task.updated": "Уточнено",
           "system_prompt":
-            "Ты консультант по внедрению ИИ-агентов в CRM. Клиент описывает, какого агента хочет. Отвечай на том же языке, на котором пишет пользователь. Кратко уточняй требования: 1–2 конкретных вопроса (CRM/система, каналы, автоматические действия, ограничения, объёмы). Не обещай сроков и цен; не выдумывай факты о клиенте.",
+            "Ты консультант по проектам автоматизации и ИИ-агентам (включая CRM, мессенджеры, сайты, внутренние процессы). Пользователь не обязан понимать устройство систем «под капотом».\n\nКАЖДЫЙ ответ должен содержать ровно два блока в таком порядке:\n\n1) Строка «Черновик стека:» и нумерованный список пользовательски понятных строительных блоков — не названия продуктов и не внутренняя инфраструктура. Запрещено без запроса пользователя называть: PostgreSQL, MongoDB, Redis, RabbitMQ, Kafka, Kubernetes, Docker, object storage, blob, S3, worker pool, connection pool, embeddings, vector DB, cron, Hangfire, retry policy, очередь сообщений и т.п. Вместо этого используй блоки вроде Data storage, Scheduler, File storage, OCR engine. Стек НАРАСТАЕТ по мере диалога: каждый раз выведи полный актуальный список в логичном порядке (от входа к выходу). Новый блок добавляй только если из реплики пользователя или контекста явно следует потребность; не добавляй «на всякий случай». Если чего-то не хватает для следующего шага — лучше спроси, чем придумать блок.\n\n2) Строка «Вопрос:» и один короткий вопрос простым языком, который открывает следующий слой требований (или два очень коротких связанных вопроса). Не спрашивай про выбор СУБД, брокеров, оркестраторов. Примеры хорошего тона: «Нужно ли сохранять данные, чтобы смотреть их позже?» вместо «PostgreSQL или MongoDB?»; «Нужны ли отчёты по расписанию, например раз в месяц?» вместо «нужен ли cron?»; «Нужно ли хранить загруженные фото и документы?» вместо «нужен ли object storage?».\n\nКак думать (внутренне): канал входа → кто принимает и обрабатывает запрос → работа с контентом (OCR, ИИ, разбор документов) → нужно ли что-то помнить → отложенные действия и отчёты → формат вывода → интерфейс владельца / роли / оплата.\n\nКаталог блоков (формулировки можно слегка подстраивать под контекст; сохраняй тон «для заказчика»):\nКаналы: Telegram API; WhatsApp API; SMS gateway; Email integration; Web chat; Mobile app; CRM integration.\nЛогика: Server / message handler; AI response engine; Workflow engine; Rules engine; Command router.\nКонтент: OCR engine; Receipt parser; Audio transcription; Image analysis; Document parser; Data extractor.\nПамять и данные: Data storage; File storage; User history; Knowledge base.\nАвтоматизация: Scheduler; Background jobs; Notifications; Reminder engine.\nВывод: Text response generator; PDF generator; Table formatter; Dashboard; Excel export; Google Sheets integration.\nУправление: Admin panel; Analytics dashboard; User roles; Settings panel.\nКоммерция: Payment integration; Subscription system; Billing module.\n\nОтвечай на том же языке, на котором пишет пользователь. Не обещай сроков и цен. Не выдумывай факты о клиенте. Если речь о CRM — уточняй систему и сценарии обычным языком.",
           "err.json": "Не JSON в ответе",
           "err.proxy": "Ошибка прокси",
           "err.no_text": "В ответе нет текста (ожидается поле reply или message)",
@@ -946,12 +946,14 @@
             "Сейчас не удалось связаться с ассистентом. Напишите на почту или позвоните — продолжим уточнение требований.",
           "chat.task_err": "Связь с моделью недоступна (__ERR__): проверить прокси и предложить клиенту офлайн-канал.",
           "task.L1":
-            "Актуализировать стек задач по последнему ответу консультанта и зафиксировать открытые вопросы.",
+            "Сверить стек задач на реализацию с последним ответом консультанта (черновик стека и открытые вопросы).",
           "task.L2": "Согласовать интеграцию с указанной CRM/API, маппинг полей и вебхуки.",
           "task.L3": "Подключить заявленные каналы и маршрутизацию сообщений к агенту.",
           "task.L4": "Описать автодействия в CRM (сделки, задачи, поля) и правила эскалации к человеку.",
-          "task.L0": "Зафиксировать формулировку заказчика и продолжить сбор требований вопросами.",
+          "task.L0": "Зафиксировать формулировку заказчика и продолжить наращивание черновика стека вопросами.",
           "task.L_sec": "Учесть требования по безопасности, ролям и обработке персональных данных.",
+          "task.L_ocr": "Заложить распознавание изображений/документов и извлечение нужных полей из чеков или файлов.",
+          "task.L_data": "Заложить хранение истории и агрегаты для отчётов и табличных выгрузок.",
           "task.T_iter": "Синхронизировать ТЗ с последними ответами клиента (итерация __N__)."
         },
         en: {
@@ -973,14 +975,14 @@
           "hero.cta2": "How we integrate",
           "demo.h2": "See it live",
           "demo.desc":
-            "On the left — a short questionnaire: you describe the agent you need, the consultant asks follow-ups in the same chat. On the right — a live task backlog for delivery: items appear and refine as you talk. Without a proxy, replies and tasks are simulated in the page.",
+            "On the left — you describe what you need in plain language; the consultant grows a client-friendly draft stack (no internal tech jargon) and asks short follow-ups. On the right — a live implementation task stack. Without a proxy, replies and tasks are simulated in the page.",
           "demo.panel1_aria": "Questionnaire: agent requirements",
           "demo.panel1_title": "Questionnaire: what you need from the agent",
           "demo.panel1_sub": "You are the buyer; the agent clarifies requirements in the same chat",
           "demo.welcome":
-            "Hello! Briefly describe the AI agent you want for your CRM or process: what it is for, which channel it should use, and what it should do without a human in the loop.",
+            "Hello! In your own words, describe what you want to automate or what kind of agent you need: channel (website, messenger, CRM, email), what comes in, and the outcome you expect. I will show a draft stack in plain building blocks — no Redis or Kubernetes — and ask short follow-up questions.",
           "demo.chat_placeholder":
-            "e.g. I need an agent in amoCRM to qualify Telegram leads and assign tasks to a sales rep",
+            "e.g. I want a Telegram bot that takes receipt photos and replies with a price list",
           "demo.send": "Send",
           "demo.panel2_aria": "Implementation task stack",
           "demo.panel2_title": "Implementation task stack",
@@ -1038,37 +1040,39 @@
           "task.added": "Added",
           "task.updated": "Updated",
           "system_prompt":
-            "You are a consultant helping companies deploy AI agents in their CRM. The user describes the agent they want. Always reply in the same language the user writes in. Keep clarifying questions short (1–2 concrete questions: CRM/system, channels, automated actions, constraints, volume). Do not promise timelines or prices; do not invent facts about the customer.",
+            "You are a consultant for automation and AI agent projects (including CRM, messengers, websites, internal workflows). The user does not need to understand how systems work under the hood.\n\nEVERY reply must contain exactly two sections in this order:\n\n1) A line \"Draft stack:\" followed by a numbered list of client-friendly building blocks — not vendor product names and not internal infrastructure. Do not name, unless the user explicitly asks for that level of detail: PostgreSQL, MongoDB, Redis, RabbitMQ, Kafka, Kubernetes, Docker, object storage, blob, S3, worker pool, connection pool, embeddings, vector DB, cron, Hangfire, retry policy, message queues, etc. Use blocks like Data storage, Scheduler, File storage, OCR engine instead. The stack GROWS across the turn: each time output the full current list in a sensible order (input → processing → memory → automation → output). Add a new block only when the user’s message or context clearly implies it; do not add blocks “just in case”. If something is unclear, ask rather than invent a block.\n\n2) A line \"Question:\" followed by one short question in plain language that opens the next layer of requirements (or two very short related questions). Do not ask the user to choose databases, brokers, or orchestrators. Good style: “Do you need to keep this data to review later?” instead of “PostgreSQL or MongoDB?”; “Should the system produce scheduled reports, e.g. monthly?” instead of “Do you need cron?”; “Should we keep uploaded photos and documents on file?” instead of “Do you need object storage?”\n\nThink along: entry channel → who receives and handles the request → content work (OCR, AI, document parsing) → memory → deferred work and reports → output format → owner UI / roles / payments.\n\nBlock catalog (wording may be adapted slightly; keep a client-facing tone):\nChannels: Telegram API; WhatsApp API; SMS gateway; Email integration; Web chat; Mobile app; CRM integration.\nLogic: Server / message handler; AI response engine; Workflow engine; Rules engine; Command router.\nContent: OCR engine; Receipt parser; Audio transcription; Image analysis; Document parser; Data extractor.\nMemory and data: Data storage; File storage; User history; Knowledge base.\nAutomation: Scheduler; Background jobs; Notifications; Reminder engine.\nOutput: Text response generator; PDF generator; Table formatter; Dashboard; Excel export; Google Sheets integration.\nManagement: Admin panel; Analytics dashboard; User roles; Settings panel.\nCommerce: Payment integration; Subscription system; Billing module.\n\nAlways reply in the same language the user writes in. Do not promise timelines or prices. Do not invent facts about the customer. If CRM is involved, clarify the system and scenarios in plain language.",
           "err.json": "Response was not JSON",
           "err.proxy": "Proxy error",
           "err.no_text": "No assistant text in the response (expected reply or message field)",
           "chat.fallback_reply":
             "We could not reach the assistant right now. Email or call us — we will continue scoping your requirements.",
           "chat.task_err": "Model unavailable (__ERR__): check the proxy and offer the customer an offline channel.",
-          "task.L1": "Refresh the task stack from the consultant’s last reply and capture open questions.",
+          "task.L1": "Align the implementation task stack with the consultant’s last reply (draft stack and open questions).",
           "task.L2": "Align on integration with the named CRM/API, field mapping, and webhooks.",
           "task.L3": "Connect the requested channels and route messages to the agent.",
           "task.L4": "Describe CRM automations (deals, tasks, fields) and human-escalation rules.",
-          "task.L0": "Capture the buyer’s wording and continue requirements discovery with questions.",
+          "task.L0": "Capture the buyer’s wording and keep growing the draft stack with questions.",
           "task.L_sec": "Account for security, roles, and personal-data handling requirements.",
+          "task.L_ocr": "Plan image/document recognition and field extraction (e.g. receipts or uploads).",
+          "task.L_data": "Plan data retention and aggregations for reports and table exports.",
           "task.T_iter": "Sync the spec with the latest customer answers (iteration __N__)."
         }
       };
 
       var SIM_REPLIES = {
         ru: [
-          "Спасибо за описание. Уточните, пожалуйста: какая CRM или учётная система (или самопис), и есть ли уже API/вебхуки?",
-          "Понял контекст. Нужны ли агенту действия «как у менеджера» — смена этапов, поля, задачи коллегам — или достаточно ответов в переписке?",
-          "Ок. Есть ли требования по безопасности и ролям (кто что видит) и ожидаемые объёмы обращений в день?",
-          "Хорошо. После созвона мы сможем разложить это в точные интеграции и сценарии. Есть ли дедлайн или пилот на ограниченной воронке?",
-          "Принято. Если появятся примеры типовых диалогов или документы для ответов — пришлите, это ускорит настройку."
+          "Черновик стека:\n1) CRM integration\n2) Server / message handler\n3) AI response engine\n\nВопрос: В какой системе ведёте сделки (название CRM или самопис), и агент должен только отвечать в чате или ещё менять карточки и этапы?",
+          "Черновик стека:\n1) CRM integration\n2) Server / message handler\n3) AI response engine\n4) Text response generator\n\nВопрос: Нужно ли сохранять историю переписок и решений агента, чтобы смотреть позже, или достаточно ответа «здесь и сейчас»?",
+          "Черновик стека:\n1) Telegram API\n2) Server / message handler\n3) Text response generator\n\nВопрос: Что бот должен делать для пользователя пошагово (пример одного типового диалога)?",
+          "Черновик стека:\n1) Telegram API\n2) Server / message handler\n3) OCR engine\n4) Receipt parser\n5) Text response generator\n\nВопрос: Нужно ли сохранять распознанные суммы и сами чеки, чтобы потом строить отчёты или таблицы?",
+          "Черновик стека:\n1) Web chat\n2) Server / message handler\n3) AI response engine\n4) Knowledge base\n5) Data storage\n\nВопрос: Откуда агенту брать знания — только из переписки или есть документы/страницы, которые нужно учитывать?"
         ],
         en: [
-          "Thanks for the context. Which CRM or system (or custom build) is it, and do you already have an API or webhooks?",
-          "Understood. Should the agent act “like a rep” — stages, fields, tasks for teammates — or is chat-only enough?",
-          "Got it. Any security or role requirements (who sees what) and expected conversation volume per day?",
-          "Good. After a call we can break this into concrete integrations and flows. Any deadline or a pilot on part of the funnel?",
-          "Noted. If you have sample dialogs or documents for answers, send them — it speeds up tuning."
+          "Draft stack:\n1) CRM integration\n2) Server / message handler\n3) AI response engine\n\nQuestion: Which system holds your deals (CRM name or custom), and should the agent only reply in chat or also update records and stages?",
+          "Draft stack:\n1) CRM integration\n2) Server / message handler\n3) AI response engine\n4) Text response generator\n\nQuestion: Do you need to keep conversation and decision history for later review, or is an in-the-moment reply enough?",
+          "Draft stack:\n1) Telegram API\n2) Server / message handler\n3) Text response generator\n\nQuestion: What should the bot do for the user, step by step (one typical dialog example)?",
+          "Draft stack:\n1) Telegram API\n2) Server / message handler\n3) OCR engine\n4) Receipt parser\n5) Text response generator\n\nQuestion: Should we store recognized amounts and the receipts themselves for later reports or tables?",
+          "Draft stack:\n1) Web chat\n2) Server / message handler\n3) AI response engine\n4) Knowledge base\n5) Data storage\n\nQuestion: Where should answers come from — only the chat thread, or also documents/pages we should use?"
         ]
       };
 
@@ -1331,6 +1335,12 @@
         }
         if (/telegram|whatsapp|почт|email|чат|канал|телег|мессендж|mail|messenger|slack|sms/i.test(u)) {
           ops.push({ id: "L3", text: t("task.L3") });
+        }
+        if (/ocr|чек|receipt|скан|фото|распозна|изображен|документ|pdf|сканир/i.test(u)) {
+          ops.push({ id: "L-ocr", text: t("task.L_ocr") });
+        }
+        if (/отчёт|отчет|таблиц|месяц|истори|архив|хран|агрег|export|excel|выгруз/i.test(u)) {
+          ops.push({ id: "L-data", text: t("task.L_data") });
         }
         if (/задач|сделк|этап|поле|лид|квалифиц|воронк|статус|deal|lead|pipeline|stage|field|qualif/i.test(u)) {
           ops.push({ id: "L4", text: t("task.L4") });
