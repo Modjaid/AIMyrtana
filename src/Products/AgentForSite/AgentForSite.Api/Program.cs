@@ -81,8 +81,20 @@ app.MapPost(
         {
             try
             {
-                var reply = await openAi.GetReplyAsync(lastUser.Content, cancellationToken).ConfigureAwait(false);
-                return Results.Ok(new { reply });
+                var turn = await openAi
+                    .GetStructuredConsultantTurnAsync(lastUser.Content, cancellationToken)
+                    .ConfigureAwait(false);
+                var historyContent = ConsultantChatFormatting.BuildHistoryContent(
+                    turn.AssistantMessage,
+                    turn.DevStack);
+                return Results.Ok(new
+                {
+                    assistantMessage = turn.AssistantMessage,
+                    devStack = turn.DevStack,
+                    currentPriceUsd = turn.CurrentPriceUsd,
+                    historyContent,
+                    reply = turn.AssistantMessage,
+                });
             }
             catch (Exception ex)
             {
@@ -103,9 +115,20 @@ app.MapPost(
 
         try
         {
-            var reply = await openAi.GetReplyFromConversationAsync(forLlm!, cancellationToken).ConfigureAwait(false);
-            sessions.AppendAssistant(sessionId, reply);
-            return Results.Ok(new { reply, sessionId });
+            var turn = await openAi.GetStructuredConsultantTurnAsync(forLlm!, cancellationToken).ConfigureAwait(false);
+            var historyContent = ConsultantChatFormatting.BuildHistoryContent(
+                turn.AssistantMessage,
+                turn.DevStack);
+            sessions.AppendAssistant(sessionId, historyContent);
+            return Results.Ok(new
+            {
+                assistantMessage = turn.AssistantMessage,
+                devStack = turn.DevStack,
+                currentPriceUsd = turn.CurrentPriceUsd,
+                historyContent,
+                reply = turn.AssistantMessage,
+                sessionId,
+            });
         }
         catch (Exception ex)
         {

@@ -897,9 +897,9 @@
         Решение: маленький прокси (Cloudflare Worker, Firebase Function, свой сервер),
         который хранит API_KEY и вызывает модель. Здесь укажите URL прокси.
 
-        Прокси: POST JSON { "sessionId"?: "uuid", "messages": [ { "role":"system"|"user"|"assistant", "content":"..." }, ... ] }
-        Заголовок (опционально): X-Chat-Session-Id — тот же UUID; без sessionId сервер остаётся stateless (только последняя реплика пользователя).
-        Ответ: { "reply": "текст", "sessionId"?: "..." }  (или совместимый формат ниже в parseReply).
+        Прокси: POST JSON { "sessionId"?: "uuid", "messages": [ { "role","content" }, ... ] } — в messages только role и content.
+        Заголовок (опционально): X-Chat-Session-Id — тот же UUID; без sessionId сервер stateless.
+        Ответ API: assistantMessage, devStack[], currentPriceUsd, historyContent (для сессии), sessionId?; reply дублирует assistantMessage для совместимости.
 
         Пример заголовка защиты: LLM_PROXY_SECRET — необязательный Bearer-токен,
         который ваш прокси проверяет вместо публичного доступа.
@@ -995,10 +995,10 @@
           "task.added": "Добавлено",
           "task.updated": "Уточнено",
           "system_prompt":
-            "Ты консультант по проектам автоматизации и ИИ-агентам (включая CRM, мессенджеры, сайты, внутренние процессы). Пользователь не обязан понимать устройство систем «под капотом».\n\nКАЖДЫЙ ответ должен содержать ровно два блока в таком порядке:\n\n1) Строка «Черновик стека:» и нумерованный список пользовательски понятных строительных блоков — не названия продуктов и не внутренняя инфраструктура. Запрещено без запроса пользователя называть: PostgreSQL, MongoDB, Redis, RabbitMQ, Kafka, Kubernetes, Docker, object storage, blob, S3, worker pool, connection pool, embeddings, vector DB, cron, Hangfire, retry policy, очередь сообщений и т.п. Вместо этого используй блоки вроде Data storage, Scheduler, File storage, OCR engine. Стек НАРАСТАЕТ по мере диалога: каждый раз выведи полный актуальный список в логичном порядке (от входа к выходу). Новый блок добавляй только если из реплики пользователя или контекста явно следует потребность; не добавляй «на всякий случай». Если чего-то не хватает для следующего шага — лучше спроси, чем придумать блок.\n\n2) Строка «Вопрос:» и один короткий вопрос простым языком, который открывает следующий слой требований (или два очень коротких связанных вопроса). Не спрашивай про выбор СУБД, брокеров, оркестраторов. Примеры хорошего тона: «Нужно ли сохранять данные, чтобы смотреть их позже?» вместо «PostgreSQL или MongoDB?»; «Нужны ли отчёты по расписанию, например раз в месяц?» вместо «нужен ли cron?»; «Нужно ли хранить загруженные фото и документы?» вместо «нужен ли object storage?».\n\nКак думать (внутренне): канал входа → кто принимает и обрабатывает запрос → работа с контентом (OCR, ИИ, разбор документов) → нужно ли что-то помнить → отложенные действия и отчёты → формат вывода → интерфейс владельца / роли / оплата.\n\nКаталог блоков (формулировки можно слегка подстраивать под контекст; сохраняй тон «для заказчика»):\nКаналы: Telegram API; WhatsApp API; SMS gateway; Email integration; Web chat; Mobile app; CRM integration.\nЛогика: Server / message handler; AI response engine; Workflow engine; Rules engine; Command router.\nКонтент: OCR engine; Receipt parser; Audio transcription; Image analysis; Document parser; Data extractor.\nПамять и данные: Data storage; File storage; User history; Knowledge base.\nАвтоматизация: Scheduler; Background jobs; Notifications; Reminder engine.\nВывод: Text response generator; PDF generator; Table formatter; Dashboard; Excel export; Google Sheets integration.\nУправление: Admin panel; Analytics dashboard; User roles; Settings panel.\nКоммерция: Payment integration; Subscription system; Billing module.\n\nОтвечай на том же языке, на котором пишет пользователь. Не обещай сроков и цен. Не выдумывай факты о клиенте. Если речь о CRM — уточняй систему и сценарии обычным языком.",
+            "Ты консультант по проектам автоматизации и ИИ-агентам (CRM, мессенджеры, сайты, внутренние процессы). Пользователю не нужны детали «под капотом».\n\nСервер принуждает вызов инструмента submit_consultant_turn на каждый ход. Передавай:\n- assistantMessage — короткий вопрос или реплика простым языком (или два очень коротких связанных вопроса).\n- devStack — массив строк: полный актуальный список понятных заказчику блоков в порядке от входа к выходу. Без названий внутренней инфраструктуры, пока пользователь сам не попросил детализацию: не используй PostgreSQL, Redis, Kafka, Kubernetes, Docker, object storage, S3, очереди, cron, embeddings, vector DB и т.п. Используй формулировки вроде Data storage, Scheduler, File storage, OCR engine, CRM integration, Server / message handler. Стек наращивай только когда из контекста явно следует потребность.\n- currentPriceUsd — грубая ориентировочная «рыночная» цена в USD для объёма работ по текущему devStack; 0 если не уверен.\n\nНе спрашивай про выбор СУБД, брокеров, оркестраторов — спрашивай про задачи бизнеса обычным языком.\n\nОриентиры блоков: каналы (Telegram API, Web chat, CRM integration), логика (AI response engine, Workflow engine), контент (OCR engine, Document parser), память (Data storage, Knowledge base), автоматизация (Scheduler, Notifications), вывод (Text response generator, Dashboard), управление (Admin panel, User roles).\n\nПиши на языке пользователя. Не обещай сроки. Не выдумывай факты о клиенте.",
           "err.json": "Не JSON в ответе",
           "err.proxy": "Ошибка прокси",
-          "err.no_text": "В ответе нет текста (ожидается поле reply или message)",
+          "err.no_text": "В ответе нет данных ассистента (ожидается assistantMessage или reply)",
           "chat.fallback_reply":
             "Сейчас не удалось связаться с ассистентом. Напишите на почту или позвоните — продолжим уточнение требований.",
           "chat.task_err": "Связь с моделью недоступна (__ERR__): проверить прокси и предложить клиенту офлайн-канал.",
@@ -1098,10 +1098,10 @@
           "task.added": "Added",
           "task.updated": "Updated",
           "system_prompt":
-            "You are a consultant for automation and AI agent projects (including CRM, messengers, websites, internal workflows). The user does not need to understand how systems work under the hood.\n\nEVERY reply must contain exactly two sections in this order:\n\n1) A line \"Draft stack:\" followed by a numbered list of client-friendly building blocks — not vendor product names and not internal infrastructure. Do not name, unless the user explicitly asks for that level of detail: PostgreSQL, MongoDB, Redis, RabbitMQ, Kafka, Kubernetes, Docker, object storage, blob, S3, worker pool, connection pool, embeddings, vector DB, cron, Hangfire, retry policy, message queues, etc. Use blocks like Data storage, Scheduler, File storage, OCR engine instead. The stack GROWS across the turn: each time output the full current list in a sensible order (input → processing → memory → automation → output). Add a new block only when the user’s message or context clearly implies it; do not add blocks “just in case”. If something is unclear, ask rather than invent a block.\n\n2) A line \"Question:\" followed by one short question in plain language that opens the next layer of requirements (or two very short related questions). Do not ask the user to choose databases, brokers, or orchestrators. Good style: “Do you need to keep this data to review later?” instead of “PostgreSQL or MongoDB?”; “Should the system produce scheduled reports, e.g. monthly?” instead of “Do you need cron?”; “Should we keep uploaded photos and documents on file?” instead of “Do you need object storage?”\n\nThink along: entry channel → who receives and handles the request → content work (OCR, AI, document parsing) → memory → deferred work and reports → output format → owner UI / roles / payments.\n\nBlock catalog (wording may be adapted slightly; keep a client-facing tone):\nChannels: Telegram API; WhatsApp API; SMS gateway; Email integration; Web chat; Mobile app; CRM integration.\nLogic: Server / message handler; AI response engine; Workflow engine; Rules engine; Command router.\nContent: OCR engine; Receipt parser; Audio transcription; Image analysis; Document parser; Data extractor.\nMemory and data: Data storage; File storage; User history; Knowledge base.\nAutomation: Scheduler; Background jobs; Notifications; Reminder engine.\nOutput: Text response generator; PDF generator; Table formatter; Dashboard; Excel export; Google Sheets integration.\nManagement: Admin panel; Analytics dashboard; User roles; Settings panel.\nCommerce: Payment integration; Subscription system; Billing module.\n\nAlways reply in the same language the user writes in. Do not promise timelines or prices. Do not invent facts about the customer. If CRM is involved, clarify the system and scenarios in plain language.",
+            "You are a consultant for automation and AI agent projects (CRM, messengers, websites, internal workflows). The user does not need technical internals.\n\nThe server forces a submit_consultant_turn tool call every turn. Provide:\n- assistantMessage — short follow-up in plain language (or two very short related questions).\n- devStack — array of strings: the full current client-facing stack in order from input to output. No internal infra names unless the user asks: avoid PostgreSQL, Redis, Kafka, Kubernetes, Docker, object storage, S3, queues, cron, embeddings, vector DB, etc. Use labels like Data storage, Scheduler, File storage, OCR engine, CRM integration, Server / message handler. Grow the stack only when the context clearly requires it.\n- currentPriceUsd — rough ballpark US list price in USD for the work implied by devStack; use 0 if unsure.\n\nDo not ask the user to pick databases, brokers, or orchestrators — ask about business needs in plain language.\n\nBlock hints: channels (Telegram API, Web chat, CRM integration), logic (AI response engine, Workflow engine), content (OCR engine, Document parser), memory (Data storage, Knowledge base), automation (Scheduler, Notifications), output (Text response generator, Dashboard), management (Admin panel, User roles).\n\nReply in the user’s language. Do not promise timelines. Do not invent facts about the customer.",
           "err.json": "Response was not JSON",
           "err.proxy": "Proxy error",
-          "err.no_text": "No assistant text in the response (expected reply or message field)",
+          "err.no_text": "No assistant payload in the response (expected assistantMessage or reply)",
           "chat.fallback_reply":
             "We could not reach the assistant right now. Email or call us — we will continue scoping your requirements.",
           "chat.task_err": "Model unavailable (__ERR__): check the proxy and offer the customer an offline channel.",
@@ -1243,7 +1243,13 @@
           if (!m) continue;
           var r = String(m.role || "").toLowerCase();
           if (r === "user") appendClient(m.content);
-          else if (r === "assistant") appendBusiness(consultantVisibleText(m.content));
+          else if (r === "assistant") {
+            var vis =
+              m.assistantVisible != null && String(m.assistantVisible).length > 0
+                ? String(m.assistantVisible)
+                : consultantVisibleText(m.content);
+            appendBusiness(vis);
+          }
         }
         chatMessages.scrollTop = chatMessages.scrollHeight;
         syncDraftStackFromLastAssistant();
@@ -1266,6 +1272,8 @@
           for (var j = 0; j < arr.length; j++) {
             var x = arr[j];
             if (!x || typeof x.role !== "string" || typeof x.content !== "string") return;
+            if (x.assistantVisible != null && typeof x.assistantVisible !== "string") return;
+            if (x.devStack != null && !Array.isArray(x.devStack)) return;
           }
           chatHistory = arr;
           redrawChatFromHistory();
@@ -1388,7 +1396,12 @@
       function syncDraftStackFromLastAssistant() {
         for (var i = chatHistory.length - 1; i >= 0; i--) {
           if (String(chatHistory[i].role || "").toLowerCase() !== "assistant") continue;
-          var p = splitConsultantReply(chatHistory[i].content || "");
+          var m = chatHistory[i];
+          if (Array.isArray(m.devStack)) {
+            applyDraftStack(m.devStack);
+            return;
+          }
+          var p = splitConsultantReply(m.content || "");
           applyDraftStack(p.stackLines);
           return;
         }
@@ -1523,21 +1536,68 @@
         }
       }
 
-      function parseReply(data) {
-        if (!data || typeof data !== "object") return "";
-        if (typeof data.reply === "string") return data.reply;
-        if (typeof data.message === "string") return data.message;
-        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-          return String(data.choices[0].message.content);
+      function buildClientHistoryContent(assistantMessage, devStack) {
+        var msg = String(assistantMessage || "").trim();
+        var lines = Array.isArray(devStack)
+          ? devStack
+              .map(function (s) {
+                return String(s || "").trim();
+              })
+              .filter(function (s) {
+                return s.length > 0;
+              })
+          : [];
+        if (lines.length === 0) return msg ? "Draft stack:\n(none)\n\nQuestion: " + msg : "";
+        var body = lines
+          .map(function (s, idx) {
+            return idx + 1 + ") " + s;
+          })
+          .join("\n");
+        return "Draft stack:\n" + body + "\n\nQuestion: " + msg;
+      }
+
+      function toWireChatMessages(history) {
+        var out = [];
+        for (var i = 0; i < history.length; i++) {
+          var m = history[i];
+          if (!m || typeof m.role !== "string") continue;
+          out.push({ role: m.role, content: String(m.content != null ? m.content : "") });
         }
-        return "";
+        return out;
+      }
+
+      function parseChatResponse(data) {
+        if (!data || typeof data !== "object") return null;
+        if (typeof data.assistantMessage === "string" && Array.isArray(data.devStack)) {
+          var am = data.assistantMessage;
+          var ds = [];
+          for (var di = 0; di < data.devStack.length; di++) {
+            var s = data.devStack[di];
+            if (typeof s === "string" && s.trim()) ds.push(s.trim());
+          }
+          var hc = typeof data.historyContent === "string" ? data.historyContent : "";
+          if (!hc) hc = buildClientHistoryContent(am, ds);
+          var cpu =
+            typeof data.currentPriceUsd === "number" && isFinite(data.currentPriceUsd)
+              ? data.currentPriceUsd
+              : 0;
+          return { kind: "structured", assistantMessage: am, devStack: ds, historyContent: hc, currentPriceUsd: cpu };
+        }
+        var legacy = "";
+        if (typeof data.reply === "string") legacy = data.reply;
+        else if (typeof data.message === "string") legacy = data.message;
+        else if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+          legacy = String(data.choices[0].message.content);
+        }
+        if (legacy) return { kind: "legacy", text: legacy };
+        return null;
       }
 
       function callLlmProxy(messages, onSuccess, onError) {
         var headers = { "Content-Type": "application/json" };
         if (LLM_PROXY_SECRET) headers["Authorization"] = "Bearer " + LLM_PROXY_SECRET;
         var sid = ensureChatSessionId();
-        var body = { messages: messages };
+        var body = { messages: toWireChatMessages(messages) };
         if (sid) {
           body.sessionId = sid;
           headers["X-Chat-Session-Id"] = sid;
@@ -1556,9 +1616,19 @@
                 throw new Error(t("err.json"));
               }
               if (!res.ok) throw new Error((data && data.error) || res.statusText || t("err.proxy"));
-              var reply = parseReply(data);
-              if (!reply) throw new Error(t("err.no_text"));
-              onSuccess(reply);
+              var parsed = parseChatResponse(data);
+              if (!parsed) throw new Error(t("err.no_text"));
+              if (parsed.kind === "structured") {
+                onSuccess({
+                  structured: true,
+                  assistantMessage: parsed.assistantMessage,
+                  devStack: parsed.devStack,
+                  historyContent: parsed.historyContent,
+                  currentPriceUsd: parsed.currentPriceUsd
+                });
+              } else {
+                onSuccess({ structured: false, text: parsed.text });
+              }
             });
           })
           .catch(function (err) {
@@ -1580,9 +1650,21 @@
         if (LLM_PROXY_URL) {
           callLlmProxy(
             chatHistory,
-            function (reply) {
-              chatHistory.push({ role: "assistant", content: reply });
-              appendBusinessForAssistant(reply);
+            function (res) {
+              if (res && res.structured) {
+                chatHistory.push({
+                  role: "assistant",
+                  content: res.historyContent,
+                  assistantVisible: res.assistantMessage,
+                  devStack: res.devStack
+                });
+                appendBusiness(res.assistantMessage);
+                applyDraftStack(res.devStack);
+              } else {
+                var reply = res && res.text ? res.text : "";
+                chatHistory.push({ role: "assistant", content: reply });
+                appendBusinessForAssistant(reply);
+              }
               persistChatState();
               busy = false;
               chatSend.disabled = false;
