@@ -599,6 +599,15 @@
       line-height: 1.45;
     }
 
+    .draft-stack-card .task-stack-text ol {
+      margin: 0.35em 0 0;
+      padding-left: 1.2em;
+    }
+
+    .draft-stack-card .task-stack-text li {
+      margin: 0.3em 0;
+    }
+
     @keyframes taskIn {
       from {
         opacity: 0;
@@ -954,6 +963,7 @@
           "task.L_sec": "Учесть требования по безопасности, ролям и обработке персональных данных.",
           "task.L_ocr": "Заложить распознавание изображений/документов и извлечение нужных полей из чеков или файлов.",
           "task.L_data": "Заложить хранение истории и агрегаты для отчётов и табличных выгрузок.",
+          "task.stack_title": "Черновик стека",
           "task.T_iter": "Синхронизировать ТЗ с последними ответами клиента (итерация __N__)."
         },
         en: {
@@ -1055,6 +1065,7 @@
           "task.L_sec": "Account for security, roles, and personal-data handling requirements.",
           "task.L_ocr": "Plan image/document recognition and field extraction (e.g. receipts or uploads).",
           "task.L_data": "Plan data retention and aggregations for reports and table exports.",
+          "task.stack_title": "Draft stack",
           "task.T_iter": "Sync the spec with the latest customer answers (iteration __N__)."
         }
       };
@@ -1073,47 +1084,6 @@
           "Draft stack:\n1) Telegram API\n2) Server / message handler\n3) Text response generator\n\nQuestion: What should the bot do for the user, step by step (one typical dialog example)?",
           "Draft stack:\n1) Telegram API\n2) Server / message handler\n3) OCR engine\n4) Receipt parser\n5) Text response generator\n\nQuestion: Should we store recognized amounts and the receipts themselves for later reports or tables?",
           "Draft stack:\n1) Web chat\n2) Server / message handler\n3) AI response engine\n4) Knowledge base\n5) Data storage\n\nQuestion: Where should answers come from — only the chat thread, or also documents/pages we should use?"
-        ]
-      };
-
-      var SIM_TASK_PLANS = {
-        ru: [
-          [
-            { id: "T1", text: "Зафиксировать цель агента и сценарии (квалификация, ответы, действия в CRM)." },
-            { id: "T2", text: "Определить целевую систему, каналы (чат, почта, мессенджеры) и точки входа." }
-          ],
-          [
-            { id: "T3", text: "Спроектировать доступ к API CRM: сущности, поля, статусы, права." },
-            {
-              id: "T1",
-              text: "Уточнить сценарии: только переписка или также автоматические изменения в CRM и задачи сотрудникам."
-            }
-          ],
-          [
-            { id: "T4", text: "Политики безопасности, разграничение ролей, логирование и контуры данных." },
-            { id: "T5", text: "Оценка нагрузки и отказоустойчивости (очереди, лимиты API, пики обращений)." }
-          ],
-          [{ id: "T6", text: "План пилота: объём воронки, критерии успеха, дата запуска и контрольные метрики." }],
-          [{ id: "T7", text: "Сбор примеров диалогов / базы знаний для RAG или шаблонов ответов." }]
-        ],
-        en: [
-          [
-            { id: "T1", text: "Capture the agent goal and scenarios (qualification, replies, CRM actions)." },
-            { id: "T2", text: "Define the target system, channels (chat, email, messengers), and entry points." }
-          ],
-          [
-            { id: "T3", text: "Design CRM API access: entities, fields, statuses, permissions." },
-            {
-              id: "T1",
-              text: "Clarify scenarios: chat-only vs automated CRM changes and tasks for staff."
-            }
-          ],
-          [
-            { id: "T4", text: "Security policies, role boundaries, logging, and data boundaries." },
-            { id: "T5", text: "Load and resilience (queues, API limits, traffic spikes)." }
-          ],
-          [{ id: "T6", text: "Pilot plan: funnel scope, success criteria, launch date, and KPIs." }],
-          [{ id: "T7", text: "Collect sample dialogs / knowledge for RAG or response templates." }]
         ]
       };
 
@@ -1220,9 +1190,10 @@
           if (!m) continue;
           var r = String(m.role || "").toLowerCase();
           if (r === "user") appendClient(m.content);
-          else if (r === "assistant") appendBusiness(m.content);
+          else if (r === "assistant") appendBusiness(consultantVisibleText(m.content));
         }
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        syncDraftStackFromLastAssistant();
       }
 
       function persistChatState() {
@@ -1253,6 +1224,122 @@
       }
 
       tryRestoreChatFromStorage();
+
+      function parseNumberedStackLines(body) {
+        if (!body) return [];
+        var chunks = body.split(/(?=\d+[\.)]\s*)/);
+        var lines = [];
+        for (var ci = 0; ci < chunks.length; ci++) {
+          var c = chunks[ci].trim();
+          if (!c) continue;
+          var stripped = c.replace(/^\d+[\.)]\s*/, "").trim();
+          if (stripped) lines.push(stripped);
+        }
+        if (lines.length === 0 && body.trim()) return [body.trim()];
+        return lines;
+      }
+
+      function splitConsultantReply(raw) {
+        var s = raw && typeof raw === "string" ? raw.replace(/\r\n/g, "\n").trim() : "";
+        if (!s) return { stackLines: [], questionText: "", full: "" };
+        var qRegex = /\s*(?:Вопрос|Question)\s*:\s*/i;
+        var match = s.match(qRegex);
+        var questionText = s;
+        var stackSection = "";
+        if (match && match.index !== undefined) {
+          questionText = s.slice(match.index + match[0].length).trim();
+          stackSection = s.slice(0, match.index).trim();
+        }
+        var stackBody = stackSection.replace(/^(?:Черновик стека|Draft stack)\s*:\s*/i, "").trim();
+        var stackLines = parseNumberedStackLines(stackBody);
+        if (!questionText) questionText = s;
+        return { stackLines: stackLines, questionText: questionText, full: s };
+      }
+
+      function consultantVisibleText(raw) {
+        var p = splitConsultantReply(raw);
+        return p.questionText || p.full;
+      }
+
+      function clearDraftStackFromUi() {
+        if (!taskStack) return;
+        var el = taskStack.querySelector('[data-task-id="draft-stack"]');
+        if (el) {
+          el.remove();
+          delete taskStore["draft-stack"];
+        }
+      }
+
+      function updateTaskStackEmptyVisibility() {
+        if (!taskStack || !taskStackEmpty) return;
+        var hasContent = false;
+        for (var i = 0; i < taskStack.children.length; i++) {
+          var ch = taskStack.children[i];
+          if (ch.id === "taskStackEmpty") continue;
+          if (ch.classList && ch.classList.contains("task-stack-item")) {
+            hasContent = true;
+            break;
+          }
+        }
+        setTaskEmptyVisible(!hasContent);
+      }
+
+      function applyDraftStack(lines) {
+        clearDraftStackFromUi();
+        if (!lines || lines.length === 0) {
+          updateTaskStackEmptyVisibility();
+          return;
+        }
+        setTaskEmptyVisible(false);
+        var wrap = document.createElement("div");
+        wrap.className = "task-stack-item draft-stack-card";
+        wrap.setAttribute("data-draft-stack-item", "1");
+        wrap.setAttribute("data-task-id", "draft-stack");
+        var meta = document.createElement("div");
+        meta.className = "task-stack-meta";
+        var tid = document.createElement("span");
+        tid.className = "task-stack-id";
+        tid.textContent = "\u2219";
+        var badge = document.createElement("span");
+        badge.className = "task-stack-badge";
+        badge.textContent = t("task.stack_title");
+        meta.appendChild(tid);
+        meta.appendChild(badge);
+        var body = document.createElement("div");
+        body.className = "task-stack-text";
+        var ol = document.createElement("ol");
+        for (var j = 0; j < lines.length; j++) {
+          var li = document.createElement("li");
+          li.textContent = lines[j];
+          ol.appendChild(li);
+        }
+        body.appendChild(ol);
+        wrap.appendChild(meta);
+        wrap.appendChild(body);
+        taskStack.appendChild(wrap);
+        taskStore["draft-stack"] = wrap;
+        wrap.classList.add("updated");
+        void wrap.offsetWidth;
+        wrap.classList.remove("updated");
+        taskStack.scrollTop = taskStack.scrollHeight;
+      }
+
+      function appendBusinessForAssistant(rawReply) {
+        var p = splitConsultantReply(rawReply);
+        appendBusiness(p.questionText || p.full);
+        applyDraftStack(p.stackLines);
+      }
+
+      function syncDraftStackFromLastAssistant() {
+        for (var i = chatHistory.length - 1; i >= 0; i--) {
+          if (String(chatHistory[i].role || "").toLowerCase() !== "assistant") continue;
+          var p = splitConsultantReply(chatHistory[i].content || "");
+          applyDraftStack(p.stackLines);
+          return;
+        }
+        clearDraftStackFromUi();
+        updateTaskStackEmptyVisibility();
+      }
 
       function setTaskEmptyVisible(visible) {
         if (taskStackEmpty) taskStackEmpty.style.display = visible ? "block" : "none";
@@ -1307,51 +1394,6 @@
         if (!op || !op.id) return;
         var isUpdate = !!taskStore[op.id];
         renderTaskEl(op.id, op.text, isUpdate ? t("task.updated") : t("task.added"), isUpdate);
-      }
-
-      function runTaskSequence(ops, done) {
-        var i = 0;
-        function next() {
-          if (i >= ops.length) {
-            if (done) done();
-            return;
-          }
-          applyTaskOp(ops[i]);
-          i++;
-          setTimeout(next, 380 + Math.random() * 320);
-        }
-        next();
-      }
-
-      function tasksForLlmPathUser(userText) {
-        var u = (userText || "").toLowerCase();
-        var ops = [];
-        if (
-          /amo|битрикс|bitrix|salesforce|hubspot|crm|erp|самопис|пайп|pipedrive|zoho|megaplan|retail|custom|on-?prem/i.test(
-            u
-          )
-        ) {
-          ops.push({ id: "L2", text: t("task.L2") });
-        }
-        if (/telegram|whatsapp|почт|email|чат|канал|телег|мессендж|mail|messenger|slack|sms/i.test(u)) {
-          ops.push({ id: "L3", text: t("task.L3") });
-        }
-        if (/ocr|чек|receipt|скан|фото|распозна|изображен|документ|pdf|сканир/i.test(u)) {
-          ops.push({ id: "L-ocr", text: t("task.L_ocr") });
-        }
-        if (/отчёт|отчет|таблиц|месяц|истори|архив|хран|агрег|export|excel|выгруз/i.test(u)) {
-          ops.push({ id: "L-data", text: t("task.L_data") });
-        }
-        if (/задач|сделк|этап|поле|лид|квалифиц|воронк|статус|deal|lead|pipeline|stage|field|qualif/i.test(u)) {
-          ops.push({ id: "L4", text: t("task.L4") });
-        }
-        if (/безопас|рол|доступ|персонал|152|пдн|security|role|access|gdpr|privacy|pii/i.test(u)) {
-          ops.push({ id: "L-sec", text: t("task.L_sec") });
-        }
-        if (ops.length === 0) {
-          ops.push({ id: "L0", text: t("task.L0") });
-        }
-        return ops;
       }
 
       function ensureChatSessionId() {
@@ -1429,60 +1471,42 @@
         persistChatState();
 
         if (LLM_PROXY_URL) {
-          runTaskSequence(tasksForLlmPathUser(text), function () {
-            callLlmProxy(
-              chatHistory,
-              function (reply) {
-                chatHistory.push({ role: "assistant", content: reply });
-                appendBusiness(reply);
-                persistChatState();
-                runTaskSequence(
-                  [
-                    {
-                      id: "L1",
-                      text: t("task.L1")
-                    }
-                  ],
-                  function () {
-                    busy = false;
-                    chatSend.disabled = false;
-                    chatInput.focus();
-                  }
-                );
-              },
-              function (errMsg) {
-                applyTaskOp({
-                  id: "L-err",
-                  text: t("chat.task_err").replace(/__ERR__/g, errMsg)
-                });
-                appendBusiness(t("chat.fallback_reply"));
-                chatHistory.pop();
-                persistChatState();
-                busy = false;
-                chatSend.disabled = false;
-                chatInput.focus();
-              }
-            );
-          });
+          callLlmProxy(
+            chatHistory,
+            function (reply) {
+              chatHistory.push({ role: "assistant", content: reply });
+              appendBusinessForAssistant(reply);
+              persistChatState();
+              busy = false;
+              chatSend.disabled = false;
+              chatInput.focus();
+            },
+            function (errMsg) {
+              applyTaskOp({
+                id: "L-err",
+                text: t("chat.task_err").replace(/__ERR__/g, errMsg)
+              });
+              appendBusiness(t("chat.fallback_reply"));
+              chatHistory.pop();
+              persistChatState();
+              busy = false;
+              chatSend.disabled = false;
+              chatInput.focus();
+            }
+          );
           return;
         }
 
-        var plans = SIM_TASK_PLANS[LOCALE] || SIM_TASK_PLANS.ru;
-        var planIdx = Math.min(demoTurn, plans.length - 1);
-        var taskOps = plans[planIdx];
-        if (demoTurn >= plans.length) {
-          taskOps = [{ id: "T1", text: t("task.T_iter").replace(/__N__/g, String(demoTurn + 1)) }];
-        }
-
-        runTaskSequence(taskOps, function () {
-          var replies = SIM_REPLIES[LOCALE] || SIM_REPLIES.ru;
-          var replyIdx = Math.min(demoTurn, replies.length - 1);
-          appendBusiness(replies[replyIdx]);
-          demoTurn += 1;
-          busy = false;
-          chatSend.disabled = false;
-          chatInput.focus();
-        });
+        var replies = SIM_REPLIES[LOCALE] || SIM_REPLIES.ru;
+        var replyIdx = Math.min(demoTurn, replies.length - 1);
+        var simReply = replies[replyIdx];
+        chatHistory.push({ role: "assistant", content: simReply });
+        appendBusinessForAssistant(simReply);
+        persistChatState();
+        demoTurn += 1;
+        busy = false;
+        chatSend.disabled = false;
+        chatInput.focus();
       }
 
       chatSend.addEventListener("click", send);
