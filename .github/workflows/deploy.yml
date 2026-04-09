@@ -89,6 +89,9 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      # Skipped from publish/rsync: AgentForSite.Worker (TcpTest-style worker; see is_excluded_worker_csproj).
+      # TcpTestClient.Console lives under src/Shared/Tools and is never picked by this job (only src/Products/<Product>).
+      # MyrtanaAdminTelegramm: published to dist/myrtanaadmintelegramm/ → /var/www/aimyrtana/myrtanaadmintelegramm/; VPS unit myrtana-admin-telegram.service (try-restart after rsync).
       - name: Build products
         if: steps.plan.outputs.skip != 'true'
         env:
@@ -98,12 +101,24 @@ jobs:
           rm -rf dist
           mkdir -p dist
 
+          # Exclude known non-production workers (still only searches under each product tree).
+          is_excluded_worker_csproj() {
+            local f="$1"
+            case "$f" in
+              */AgentForSite.Worker/AgentForSite.Worker.csproj) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
           while IFS= read -r prod || [ -n "$prod" ]; do
             [ -z "$prod" ] && continue
             slug=$(echo "$prod" | tr '[:upper:]' '[:lower:]')
             base="src/Products/$prod"
             api=$(find "$base" -maxdepth 3 -name '*.Api.csproj' -print | head -n1)
             worker=$(find "$base" -maxdepth 3 -name '*.Worker.csproj' -print | head -n1)
+            if [ -n "$worker" ] && is_excluded_worker_csproj "$worker"; then
+              worker=""
+            fi
             if [ -n "$api" ]; then
               mkdir -p "dist/$slug/api"
               dotnet publish "$api" -c Release -o "dist/$slug/api"
@@ -113,6 +128,10 @@ jobs:
               dotnet publish "$worker" -c Release -o "dist/$slug/worker"
             fi
           done <<< "$PRODUCTS"
+
+          mkdir -p dist/myrtanaadmintelegramm
+          dotnet publish src/Shared/Tools/MyrtanaAdminTelegramm/MyrtanaAdminTelegramm.csproj \
+            -c Release -o dist/myrtanaadmintelegramm
 
       - name: Deploy built products to VPS
         if: steps.plan.outputs.skip != 'true'
@@ -134,3 +153,8 @@ jobs:
               -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
               "$slug_dir" "${REMOTE_USER}@${REMOTE_HOST}:/var/www/aimyrtana/${slug}/"
           done
+
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${REMOTE_USER}@${REMOTE_HOST}" \
+            'sudo systemctl try-restart myrtana-admin-telegram.service' \
+            || true
