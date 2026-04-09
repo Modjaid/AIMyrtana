@@ -1,6 +1,8 @@
 using AgentForSite.AgentImplementations;
 using AgentForSite.Api.Chat;
 using AgentForSite.WebAdapter;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,6 +113,95 @@ app.MapPost(
         }
     });
 
+app.MapPost(
+    "/api/pricing/estimate",
+    async Task<IResult> (
+        PricingEstimateRequest body,
+        IOpenAiAgentClient openAi,
+        CancellationToken cancellationToken) =>
+    {
+        static bool TryParseListPriceUsd(string? llmText, out int usd)
+        {
+            usd = 0;
+            var s = (llmText ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(s))
+                return false;
+
+            // Prefer strict JSON.
+            try
+            {
+                using var doc = JsonDocument.Parse(s);
+                if (doc.RootElement.ValueKind == JsonValueKind.Object &&
+                    doc.RootElement.TryGetProperty("listPriceUsd", out var p) &&
+                    p.ValueKind is JsonValueKind.Number &&
+                    p.TryGetInt32(out usd))
+                    return true;
+            }
+            catch
+            {
+                // fall through
+            }
+
+            // Fallback: extract first integer number.
+            var m = Regex.Match(s, @"\b(\d{2,9})\b");
+            if (!m.Success)
+                return false;
+
+            return int.TryParse(m.Groups[1].Value, out usd);
+        }
+
+        var locale = string.Equals(body.Locale, "en", StringComparison.OrdinalIgnoreCase) ? "en" : "ru";
+        var stackLines = body.StackLines ?? Array.Empty<string>();
+        var stackCount = stackLines.Count;
+
+        var system =
+            "You are a pricing estimator for US-based software development services.\n"
+            + "Given an implementation task stack, you must estimate the US list price in USD.\n"
+            + "Return ONLY valid JSON with this exact shape: {\"listPriceUsd\": 1234}.\n"
+            + "Rules:\n"
+            + "- listPriceUsd must be an integer number of USD.\n"
+            + "- Use only the stack size and complexity implied by the items.\n"
+            + "- No extra keys, no prose, no formatting, no code blocks.";
+
+        var user =
+            "Estimate US list price in USD.\n"
+            + $"Stack item count: {stackCount}\n"
+            + "Stack items:\n"
+            + string.Join("\n", stackLines.Select((s, i) => $"{i + 1}. {s}"));
+
+        int usd;
+        try
+        {
+            var reply = await openAi
+                .GetReplyFromConversationAsync(
+                    new[]
+                    {
+                        new OpenAiChatMessage("system", system),
+                        new OpenAiChatMessage("user", user),
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!TryParseListPriceUsd(reply, out usd))
+                return Results.Problem("Could not parse listPriceUsd from LLM response.");
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(ex.Message);
+        }
+
+        usd = Math.Clamp(usd, 100, 250_000);
+
+        if (locale == "en")
+            return Results.Ok(new { listPrice = usd, currency = "USD", listPriceUsd = usd });
+
+        const decimal usdToRub = 95m;
+        var rub = (int)Math.Round(usd * usdToRub, MidpointRounding.AwayFromZero);
+        return Results.Ok(new { listPrice = rub, currency = "RUB", listPriceUsd = usd });
+    });
+
 app.Run();
 
 internal sealed record ChatRequest(string? SessionId, IReadOnlyList<ChatRequestMessage>? Messages);
+
+internal sealed record PricingEstimateRequest(string? Locale, IReadOnlyList<string>? StackLines);

@@ -528,6 +528,48 @@
       cursor: not-allowed;
     }
 
+    .demo-pricebar {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 14px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.12);
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .demo-price-now {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: clamp(1.5rem, 2.2vw, 2.15rem);
+      color: #34d399;
+      text-shadow: 0 0 22px rgba(52, 211, 153, 0.14);
+    }
+
+    .demo-price-was {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      font-size: clamp(1.15rem, 1.5vw, 1.55rem);
+      color: rgba(248, 113, 113, 0.92);
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(248, 113, 113, 0.9);
+      opacity: 0.95;
+    }
+
+    .demo-pricebar .demo-price-note {
+      flex-basis: 100%;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      opacity: 0.85;
+      margin-top: 2px;
+      text-align: right;
+    }
+
     .demo-task-body {
       flex: 1 1 auto;
       min-height: 0;
@@ -731,6 +773,11 @@
             <div class="demo-compose">
               <textarea id="chatInput" rows="2" data-i18n-placeholder="demo.chat_placeholder" placeholder=""></textarea>
               <button type="button" class="btn-send" id="chatSend" data-i18n="demo.send">Отправить</button>
+            </div>
+            <div class="demo-pricebar" aria-label="Pricing">
+              <span class="demo-price-now" id="demoPriceNow">—</span>
+              <span class="demo-price-was" id="demoPriceWas">—</span>
+              <span class="demo-price-note" id="demoPriceNote"></span>
             </div>
           </div>
           <div class="demo-panel" data-i18n-aria-label="demo.panel2_aria">
@@ -1139,11 +1186,16 @@
       var taskStack = document.getElementById("taskStack");
       var taskStackEmpty = document.getElementById("taskStackEmpty");
       var demoNote = document.getElementById("demoNote");
+      var demoPriceNow = document.getElementById("demoPriceNow");
+      var demoPriceWas = document.getElementById("demoPriceWas");
+      var demoPriceNote = document.getElementById("demoPriceNote");
       if (!chatMessages || !chatInput || !chatSend || !taskStack) return;
 
       var busy = false;
       var demoTurn = 0;
       var taskStore = {};
+      var lastPricingStackKey = "";
+      var pricingAbort = null;
 
       var SYSTEM_PROMPT = t("system_prompt");
       var chatHistory = [
@@ -1288,6 +1340,7 @@
         clearDraftStackFromUi();
         if (!lines || lines.length === 0) {
           updateTaskStackEmptyVisibility();
+          requestPricingUpdate([]);
           return;
         }
         setTaskEmptyVisible(false);
@@ -1322,6 +1375,7 @@
         void wrap.offsetWidth;
         wrap.classList.remove("updated");
         taskStack.scrollTop = taskStack.scrollHeight;
+        requestPricingUpdate(lines);
       }
 
       function appendBusinessForAssistant(rawReply) {
@@ -1339,6 +1393,58 @@
         }
         clearDraftStackFromUi();
         updateTaskStackEmptyVisibility();
+        requestPricingUpdate([]);
+      }
+
+      function formatMoney(amount, locale) {
+        var n = typeof amount === "number" ? amount : Number(amount || 0);
+        if (!isFinite(n)) n = 0;
+        var currency = locale === "en" ? "USD" : "RUB";
+        try {
+          return new Intl.NumberFormat(locale === "en" ? "en-US" : "ru-RU", {
+            style: "currency",
+            currency: currency,
+            maximumFractionDigits: 0
+          }).format(n);
+        } catch (e) {
+          var sym = locale === "en" ? "$" : "\u20BD";
+          return sym + String(Math.round(n));
+        }
+      }
+
+      function requestPricingUpdate(stackLines) {
+        if (!demoPriceNow || !demoPriceWas) return;
+        var arr = Array.isArray(stackLines) ? stackLines : [];
+        var key = LOCALE + "|" + arr.join("|");
+        if (key === lastPricingStackKey) return;
+        lastPricingStackKey = key;
+
+        if (pricingAbort && typeof pricingAbort.abort === "function") pricingAbort.abort();
+        pricingAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
+
+        fetch("/api/pricing/estimate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locale: LOCALE, stackLines: arr }),
+          signal: pricingAbort ? pricingAbort.signal : undefined
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error("pricing_http_" + r.status);
+            return r.json();
+          })
+          .then(function (data) {
+            var listPrice = data && typeof data.listPrice === "number" ? data.listPrice : null;
+            if (listPrice === null) throw new Error("pricing_bad_payload");
+            var salePrice = Math.round(listPrice * 0.6);
+            demoPriceWas.textContent = formatMoney(listPrice, LOCALE);
+            demoPriceNow.textContent = formatMoney(salePrice, LOCALE);
+            if (demoPriceNote) demoPriceNote.textContent = LOCALE === "en" ? "List price vs 40% off" : "Цена по рынку США и скидка 40%";
+          })
+          .catch(function () {
+            demoPriceWas.textContent = "\u2014";
+            demoPriceNow.textContent = "\u2014";
+            if (demoPriceNote) demoPriceNote.textContent = "";
+          });
       }
 
       function setTaskEmptyVisible(visible) {
