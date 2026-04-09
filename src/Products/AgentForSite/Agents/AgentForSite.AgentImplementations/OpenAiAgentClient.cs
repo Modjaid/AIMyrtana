@@ -5,9 +5,18 @@ using Microsoft.Extensions.Logging;
 
 namespace AgentForSite.AgentImplementations;
 
+public readonly record struct OpenAiChatMessage(string Role, string Content);
+
 public interface IOpenAiAgentClient
 {
     Task<string> GetReplyAsync(string userMessage, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Full conversation for multi-turn context (Responses API message list).
+    /// </summary>
+    Task<string> GetReplyFromConversationAsync(
+        IReadOnlyList<OpenAiChatMessage> messages,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class OpenAiAgentClient(
@@ -25,7 +34,7 @@ public sealed class OpenAiAgentClient(
         var http = httpClientFactory.CreateClient(nameof(OpenAiAgentClient));
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-        // Keep it simple: one-shot response for the current user message.
+        // Legacy landing proxy: single user line (no server-side session / system from client).
         var payload = new
         {
             model = "gpt-4.1-mini",
@@ -49,6 +58,64 @@ public sealed class OpenAiAgentClient(
         }
 
         return TryExtractOutputText(json) ?? string.Empty;
+    }
+
+    public async Task<string> GetReplyFromConversationAsync(
+        IReadOnlyList<OpenAiChatMessage> messages,
+        CancellationToken cancellationToken = default)
+    {
+        if (messages is null || messages.Count == 0)
+            throw new ArgumentException("At least one message is required.", nameof(messages));
+
+        var apiKey = Environment.GetEnvironmentVariable(EnvKeyName);
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new InvalidOperationException($"Missing environment variable '{EnvKeyName}'.");
+
+        var http = httpClientFactory.CreateClient(nameof(OpenAiAgentClient));
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
+        var input = new object[messages.Count];
+        for (var i = 0; i < messages.Count; i++)
+        {
+            var role = NormalizeRole(messages[i].Role);
+            input[i] = new { type = "message", role, content = messages[i].Content };
+        }
+
+        var payload = new
+        {
+            model = "gpt-4.1-mini",
+            input,
+        };
+
+        using var content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json");
+
+        using var resp = await http
+            .PostAsync("https://api.openai.com/v1/responses", content, cancellationToken)
+            .ConfigureAwait(false);
+
+        var json = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            logger.LogWarning("OpenAI call failed: {StatusCode}", (int)resp.StatusCode);
+            throw new InvalidOperationException($"OpenAI error: HTTP {(int)resp.StatusCode} {resp.ReasonPhrase}");
+        }
+
+        return TryExtractOutputText(json) ?? string.Empty;
+    }
+
+    private static string NormalizeRole(string role)
+    {
+        var r = (role ?? "").Trim().ToLowerInvariant();
+        return r switch
+        {
+            "system" => "system",
+            "assistant" => "assistant",
+            "developer" => "developer",
+            _ => "user",
+        };
     }
 
     private static string? TryExtractOutputText(string json)

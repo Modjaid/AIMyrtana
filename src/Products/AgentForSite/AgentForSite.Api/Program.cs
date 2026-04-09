@@ -1,8 +1,11 @@
-using AgentForSite.WebAdapter;
 using AgentForSite.AgentImplementations;
+using AgentForSite.Api.Chat;
+using AgentForSite.WebAdapter;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ChatSessionService>();
 builder.Services.AddAgentForSiteStack();
 
 var app = builder.Build();
@@ -16,16 +19,55 @@ app.MapAgentForSiteWebAdapter();
 
 app.MapPost(
     "/api/chat",
-    async Task<IResult> (ChatRequest body, IOpenAiAgentClient openAi, CancellationToken cancellationToken) =>
+    async Task<IResult> (
+        HttpContext http,
+        ChatRequest body,
+        IOpenAiAgentClient openAi,
+        ChatSessionService sessions,
+        CancellationToken cancellationToken) =>
     {
-        var message = body.Messages?.LastOrDefault(m => string.Equals(m.Role, "user", StringComparison.OrdinalIgnoreCase))?.Content;
-        if (string.IsNullOrWhiteSpace(message))
+        var messages = body.Messages;
+        if (messages is null || messages.Count == 0)
+            return Results.BadRequest(new { error = "Missing messages." });
+
+        var lastUser = messages.LastOrDefault(m => string.Equals(m.Role, "user", StringComparison.OrdinalIgnoreCase));
+        if (lastUser is null || string.IsNullOrWhiteSpace(lastUser.Content))
             return Results.BadRequest(new { error = "Missing user message." });
+
+        string? sessionId = null;
+        if (http.Request.Headers.TryGetValue("X-Chat-Session-Id", out var headerSid) && headerSid.Count > 0)
+            sessionId = headerSid.ToString();
+        sessionId ??= body.SessionId;
+
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            try
+            {
+                var reply = await openAi.GetReplyAsync(lastUser.Content, cancellationToken).ConfigureAwait(false);
+                return Results.Ok(new { reply });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        }
+
+        if (!ChatSessionService.IsValidSessionId(sessionId))
+        {
+            return Results.BadRequest(new
+            {
+                error = "Invalid sessionId. Expected a UUID (e.g. from crypto.randomUUID()).",
+            });
+        }
+
+        if (!sessions.TryPrepareTurn(sessionId, messages, out var forLlm, out var prepError))
+            return Results.BadRequest(new { error = prepError ?? "Invalid request." });
 
         try
         {
-            var reply = await openAi.GetReplyAsync(message, cancellationToken).ConfigureAwait(false);
-            return Results.Ok(new { reply });
+            var reply = await openAi.GetReplyFromConversationAsync(forLlm!, cancellationToken).ConfigureAwait(false);
+            sessions.AppendAssistant(sessionId, reply);
+            return Results.Ok(new { reply, sessionId });
         }
         catch (Exception ex)
         {
@@ -35,5 +77,4 @@ app.MapPost(
 
 app.Run();
 
-internal sealed record ChatRequest(IReadOnlyList<ChatMessage> Messages);
-internal sealed record ChatMessage(string Role, string Content);
+internal sealed record ChatRequest(string? SessionId, IReadOnlyList<ChatRequestMessage>? Messages);
