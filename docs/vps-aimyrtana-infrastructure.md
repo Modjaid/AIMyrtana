@@ -24,7 +24,8 @@
 - **Slug продукта** = имя папки в `src/Products/<Product>` **в нижнем регистре** (например `AgentForSite` → `agentforsite`).
 - На сервер rsync кладёт артефакты в:
   - **`/var/www/aimyrtana/<slug>/api`** — веб/API (если есть `*.Api.csproj`);
-  - **`/var/www/aimyrtana/<slug>/worker`** — worker (если есть `*.Worker.csproj`).
+  - **`/var/www/aimyrtana/<slug>/worker`** — worker (если есть `*.Worker.csproj`);
+  - **`/var/www/aimyrtana/myrtanaadmintelegramm/`** — утилита **MyrtanaAdminTelegramm** (каждый успешный деплой: publish + rsync + `sudo systemctl try-restart myrtana-admin-telegram.service`).
 
 Секреты в GitHub (имена из workflow): `UBUNTU_AI_MYRTANA`, `REMOTE_HOST`, `REMOTE_USER` — в этом файле значения не дублируем.
 
@@ -35,6 +36,10 @@
 - **systemd**: юнит **`agentforsite-api.service`**
   - Слушает только localhost: **`http://127.0.0.1:5000`** (`ASPNETCORE_URLS`).
   - `WorkingDirectory` = каталог publish выше.
+- **Переменные окружения** (что реально нужно приложению и хосту):
+  - **`ASPNETCORE_URLS`** — адрес Kestrel (например `http://127.0.0.1:5000`).
+  - **`ASPNETCORE_ENVIRONMENT`** — не читается кодом напрямую, но для ASP.NET Core на проде обычно задают **`Production`** (поведение логирования, страницы ошибок и т.п.).
+  - **`OpenAI_Key_AgentForSite`** — API-ключ OpenAI; читается из окружения в `OpenAiAgentClient` при вызовах LLM (`/api/chat`, `/api/pricing/estimate` и связанная логика). Без ключа эти запросы завершатся ошибкой. Удобно задать через `EnvironmentFile=` в юните (файл с `chmod 600`), как у Telegram-бота.
 - **nginx**: reverse proxy с **порта 80** на `http://127.0.0.1:5000` (отдельный site под IP/домен — как настроено у тебя в момент ввода в эксплуатацию).
 - Проверки с сервера:
   - `curl -i http://127.0.0.1:5000/health` → JSON `status: ok`;
@@ -50,6 +55,33 @@
    - либо один домен с разными `location` — если так удобнее маршрутизация.
 
 Worker без HTTP: systemd без nginx, только юнит с `dotnet ...Worker.dll`.
+
+## MyrtanaAdminTelegramm (Telegram-бот статусов systemd)
+
+- **Каталог после деплоя**: `/var/www/aimyrtana/myrtanaadmintelegramm/` (`MyrtanaAdminTelegramm.dll`, `services.json`).
+- **Имя юнита** (ожидается workflow): **`myrtana-admin-telegram.service`** — при первом деплое юнит нужно создать на VPS вручную; если юнита нет, `try-restart` в CI просто завершится с ненулевым кодом и шаг проигнорируется (`|| true`).
+- Секреты и админы: переменные окружения (`MYRTANA_ADMIN_TELEGRAM_BOT_TOKEN`, `Myrtana_Admins`, при необходимости `MYRTANA_SERVICES_JSON`) удобно вынести в **`EnvironmentFile=`** (файл `chmod 600`).
+
+Пример юнита (пути и пользователя подставь свои):
+
+```ini
+[Unit]
+Description=Myrtana admin Telegram bot (systemd status)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/aimyrtana/myrtanaadmintelegramm
+ExecStart=/usr/bin/dotnet MyrtanaAdminTelegramm.dll
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/etc/myrtana/myrtana-admin-telegram.env
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Проверка: `sudo systemctl status myrtana-admin-telegram --no-pager`, логи: `sudo journalctl -u myrtana-admin-telegram -n 100 --no-pager`.
 
 ## Фаервол и доступ из интернета
 
@@ -107,6 +139,9 @@ sudo ufw status verbose
 ```bash
 sudo systemctl status agentforsite-api --no-pager
 sudo journalctl -u agentforsite-api -n 100 --no-pager
+
+sudo systemctl status myrtana-admin-telegram --no-pager
+sudo journalctl -u myrtana-admin-telegram -n 50 --no-pager
 
 sudo nginx -t
 sudo systemctl reload nginx
