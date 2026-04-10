@@ -1,0 +1,14 @@
+[Unit]
+Description=Myrtana admin Telegram bot (systemd status)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/aimyrtana/myrtanaadmintelegramm
+ExecStart=/usr/bin/dotnet MyrtanaAdminTelegramm.dll
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/etc/myrtana/myrtana-admin-telegram.env
+
+[Install]
+WantedBy=multi-user.target

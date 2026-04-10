@@ -56,32 +56,17 @@
 
 Worker без HTTP: systemd без nginx, только юнит с `dotnet ...Worker.dll`.
 
-## MyrtanaAdminTelegramm (Telegram-бот статусов systemd)
+## MyrtanaAdminTelegramm (уже настроено)
 
 - **Каталог после деплоя**: `/var/www/aimyrtana/myrtanaadmintelegramm/` (`MyrtanaAdminTelegramm.dll`, `services.json`).
-- **Имя юнита** (ожидается workflow): **`myrtana-admin-telegram.service`** — при первом деплое юнит нужно создать на VPS вручную; если юнита нет, `try-restart` в CI просто завершится с ненулевым кодом и шаг проигнорируется (`|| true`).
-- Секреты и админы: переменные окружения (`MYRTANA_ADMIN_TELEGRAM_BOT_TOKEN`, `Myrtana_Admins`, при необходимости `MYRTANA_SERVICES_JSON`) удобно вынести в **`EnvironmentFile=`** (файл `chmod 600`).
-
-Пример юнита (пути и пользователя подставь свои):
-
-```ini
-[Unit]
-Description=Myrtana admin Telegram bot (systemd status)
-After=network-online.target
-
-[Service]
-Type=simple
-WorkingDirectory=/var/www/aimyrtana/myrtanaadmintelegramm
-ExecStart=/usr/bin/dotnet MyrtanaAdminTelegramm.dll
-Restart=on-failure
-RestartSec=5
-EnvironmentFile=/etc/myrtana/myrtana-admin-telegram.env
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Проверка: `sudo systemctl status myrtana-admin-telegram --no-pager`, логи: `sudo journalctl -u myrtana-admin-telegram -n 100 --no-pager`.
+- **systemd**: юнит **`myrtana-admin-telegram.service`**, файл на VPS **`/etc/systemd/system/myrtana-admin-telegram.service`**, сервис **включён в автозапуск** (`enable`). Каждый успешный деплой в CI выполняет `sudo systemctl try-restart myrtana-admin-telegram.service`; если юнита нет, команда завершится с ошибкой и шаг с `|| true` её проигнорирует.
+- **Секреты и админы** — **отдельно от AgentForSite**: не в env API, а в **`/etc/myrtana/myrtana-admin-telegram.env`**, права **`chmod 600`**. Минимум:
+  - **`MYRTANA_ADMIN_TELEGRAM_BOT_TOKEN`** (допустимо **`TELEGRAM_BOT_TOKEN`** — см. `Program.cs` утилиты);
+  - **`Myrtana_Admins`** — числовые Telegram user id через запятую.
+  - Опционально **`MYRTANA_SERVICES_JSON`** — иначе список unit’ов берётся из **`services.json`** рядом с DLL.
+- **Эталон в репозитории** (новый сервер, сверка с продом): `src/Shared/Tools/MyrtanaAdminTelegramm/deploy/myrtana-admin-telegram.service` и **`myrtana-admin-telegram.env.example`** (без реального токена; на VPS копировать в `myrtana-admin-telegram.env` и заполнить).
+- **После смены `.env`**: `sudo systemctl restart myrtana-admin-telegram`.
+- **Проверка**: `sudo systemctl status myrtana-admin-telegram --no-pager`, логи: `sudo journalctl -u myrtana-admin-telegram -n 100 --no-pager`; в Telegram от пользователя из `Myrtana_Admins` — команда **`/services`**.
 
 ## Фаервол и доступ из интернета
 

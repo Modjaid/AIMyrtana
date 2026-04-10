@@ -44,6 +44,9 @@ builder.Logging.AddSimpleConsole(o =>
 });
 
 builder.Services.AddSingleton(options);
+builder.Services.AddSingleton<IAdminTelegramCommandHandler, ServicesAdminCommandHandler>();
+builder.Services.AddSingleton<ServicePowerCommandHandler>();
+builder.Services.AddSingleton<TelegramAdminCommandRouter>();
 builder.Services.AddHostedService<TelegramAdminBotWorker>();
 
 var host = builder.Build();

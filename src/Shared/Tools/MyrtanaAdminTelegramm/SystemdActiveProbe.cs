@@ -47,4 +47,42 @@ internal static partial class SystemdActiveProbe
             return null;
         }
     }
+
+    public static Task<bool?> StopUnitAsync(string unit, CancellationToken cancellationToken) =>
+        RunUnitCommandAsync("stop", unit, cancellationToken);
+
+    public static Task<bool?> StartUnitAsync(string unit, CancellationToken cancellationToken) =>
+        RunUnitCommandAsync("start", unit, cancellationToken);
+
+    private static async Task<bool?> RunUnitCommandAsync(string verb, string unit, CancellationToken cancellationToken)
+    {
+        if (!IsSafeUnitName(unit))
+            return null;
+
+        try
+        {
+            using var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = SystemctlPath,
+                    ArgumentList = { verb, unit },
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                },
+            };
+
+            if (!process.Start())
+                return null;
+
+            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            return process.ExitCode == 0;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }
