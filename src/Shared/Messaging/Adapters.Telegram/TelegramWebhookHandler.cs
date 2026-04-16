@@ -50,11 +50,23 @@ public sealed class TelegramWebhookHandler : IWebhookHandler
         if (msg.TryGetProperty("text", out var textEl))
             text = textEl.GetString();
 
+        var metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (msg.TryGetProperty("from", out var from))
+        {
+            if (from.TryGetProperty("id", out var fromId))
+                metadata["telegram:from:id"] = fromId.GetRawText().Trim('"');
+            if (from.TryGetProperty("username", out var username) && username.ValueKind == JsonValueKind.String)
+                metadata["telegram:from:username"] = username.GetString()!;
+            if (from.TryGetProperty("first_name", out var firstName) && firstName.ValueKind == JsonValueKind.String)
+                metadata["telegram:from:first_name"] = firstName.GetString()!;
+        }
+
         inbound = new InboundMessage(
             ChannelKind.Telegram,
             id,
             text,
-            msg.TryGetProperty("message_id", out var mid) ? mid.GetRawText() : null);
+            msg.TryGetProperty("message_id", out var mid) ? mid.GetRawText() : null,
+            metadata.Count > 0 ? metadata : null);
         return true;
     }
 }

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\Messaging.Abstractions\Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\Messaging.Runtime\Messaging.Runtime.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\Messaging\Adapters.Telegram\Adapters.Telegram.csproj" />
+    <ProjectReference Include="..\LinguaBot.MessageHandlers\LinguaBot.MessageHandlers.csproj" />
+    <ProjectReference Include="..\..\Agents\LinguaBot.Agent\LinguaBot.Agent.csproj" />
+    <ProjectReference Include="..\..\Data\LinguaBot.Data\LinguaBot.Data.csproj" />
+    <ProjectReference Include="..\..\Scheduler\LinguaBot.Scheduler\LinguaBot.Scheduler.csproj" />
+  </ItemGroup>
+
+</Project>
