@@ -1,4 +1,5 @@
 using Adapters.Telegram;
+using LinguaBot.AdapterInit;
 using LinguaBot.MessageHandlers;
 using Messaging.Abstractions;
 using Messaging.Runtime;
@@ -39,6 +40,9 @@ public static class LinguaBotServiceCollectionExtensions
 
         // Scheduler: background worker + ISchedulerService
         services.AddLinguaBotScheduler();
+
+        // Polling worker (local dev — no webhook/ngrok needed)
+        services.AddHostedService<TelegramPollingWorker>();
 
         return services;
     }

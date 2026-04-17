@@ -16,6 +16,7 @@ var openAiKey = builder.Configuration["OpenAI:ApiKey"]
 var openAiModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4o-mini";
 
 builder.Services.AddLinguaBotStack(connectionString, telegramToken, openAiKey, openAiModel);
+builder.Services.Configure<HostOptions>(opts => opts.ShutdownTimeout = TimeSpan.FromSeconds(10));
 
 var app = builder.Build();
 
@@ -56,4 +57,5 @@ app.MapPost("/telegram/webhook", async (
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", product = "LinguaBot" }));
 
-app.Run();
+await app.RunAsync();
+Environment.Exit(0);
